@@ -21,6 +21,13 @@ dependencies {
 
     // This dependency is used by the application.
     implementation(libs.guava)
+
+    // To not write getters and setters
+    compileOnly("org.projectlombok:lombok:1.18.38")
+    annotationProcessor("org.projectlombok:lombok:1.18.38")
+
+    testCompileOnly("org.projectlombok:lombok:1.18.38")
+    testAnnotationProcessor("org.projectlombok:lombok:1.18.38")
 }
 
 // Apply a specific Java toolchain to ease working on different environments.
@@ -32,5 +39,5 @@ java {
 
 application {
     // Define the main class for the application.
-    mainClass = "org.example.App"
+    mainClass = "App"
 }
