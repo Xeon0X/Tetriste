@@ -1,17 +1,23 @@
 package model;
 
+import java.awt.*;
+import java.util.Observable;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.awt.*;
-import java.util.Observable;
-
 @Getter
 @Setter
+@Builder
 public class Matrix extends Observable implements Runnable {
+
     public final int SIZE_X = 20;
     public final int SIZE_Y = 20;
-    private final Block activeBlock = new Block.BlockBuilder().matrix(this).coordinate(new Point(5, 5)).build();
+    private final Tetromino activeTetromino = new Tetromino.TetrominoBuilder()
+        .matrix(this)
+        .coordinate(new Point(5, 5))
+        .shape(Shape.I)
+        .build();
 
     public Matrix() {
         new Scheduler(this).start();
@@ -19,19 +25,21 @@ public class Matrix extends Observable implements Runnable {
 
     @Override
     public void run() {
-        activeBlock.run();
+        activeTetromino.run();
         setChanged();
         notifyObservers();
     }
 
     public void action(Direction direction) {
-        activeBlock.action(direction);
+        activeTetromino.action(direction);
         setChanged();
         notifyObservers();
     }
 
     public boolean isCoordinateValid(Point coordinate) {
-        return ((coordinate.getY() >= 0 && coordinate.getY() < SIZE_Y)
-                && ((coordinate.getX() >= 0 && coordinate.getX() < SIZE_X)));
+        return (
+            (coordinate.getY() >= 0 && coordinate.getY() < SIZE_Y) &&
+            ((coordinate.getX() >= 0 && coordinate.getX() < SIZE_X))
+        );
     }
 }

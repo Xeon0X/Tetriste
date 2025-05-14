@@ -1,10 +1,5 @@
 package controller;
 
-import model.Direction;
-import model.Matrix;
-import view.MatrixView;
-
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -13,8 +8,13 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import javax.swing.*;
+import model.Direction;
+import model.Matrix;
+import view.MatrixView;
 
 public class MatrixController extends JFrame implements Observer {
+
     static long lastTime = System.currentTimeMillis();
     private final Executor ex = Executors.newSingleThreadExecutor();
     private final JTextField textField = new JTextField("");
@@ -36,59 +36,87 @@ public class MatrixController extends JFrame implements Observer {
         panel.add((JPanel) matrixView, BorderLayout.CENTER);
         setContentPane(panel);
 
-        button.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                ex.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        System.out.println("button clicked");
-                    }
-                });
+        button.addActionListener(
+            new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    ex.execute(
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                System.out.println("button clicked");
+                            }
+                        }
+                    );
+                }
             }
-        });
+        );
 
         KeyboardFocusManager.getCurrentKeyboardFocusManager()
-                .addKeyEventDispatcher(new KeyEventDispatcher() {
+            .addKeyEventDispatcher(
+                new KeyEventDispatcher() {
                     @Override
                     public boolean dispatchKeyEvent(KeyEvent e) {
                         if (e.getID() == KeyEvent.KEY_PRESSED) {
                             switch (e.getKeyCode()) {
-                                case KeyEvent.VK_LEFT -> matrix.action(Direction.LEFT);
-                                case KeyEvent.VK_RIGHT -> matrix.action(Direction.RIGHT);
-                                case KeyEvent.VK_DOWN -> matrix.action(Direction.SOFT_DROP);
-                                case KeyEvent.VK_UP -> matrix.action(Direction.UP);
-                                case KeyEvent.VK_SPACE -> matrix.action(Direction.HARD_DROP);
+                                case KeyEvent.VK_LEFT -> matrix.action(
+                                    Direction.LEFT
+                                );
+                                case KeyEvent.VK_RIGHT -> matrix.action(
+                                    Direction.RIGHT
+                                );
+                                case KeyEvent.VK_DOWN -> matrix.action(
+                                    Direction.SOFT_DROP
+                                );
+                                case KeyEvent.VK_UP -> matrix.action(
+                                    Direction.UP
+                                );
+                                case KeyEvent.VK_SPACE -> matrix.action(
+                                    Direction.HARD_DROP
+                                );
                             }
                         }
                         return false;
                     }
-                });
-
-
+                }
+            );
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(new Runnable() {
-                                       public void run() {
-                                           Matrix currentMatrix = new Matrix();
-                                           MatrixController matrixController = new MatrixController(currentMatrix);
-                                           matrixController.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                                           currentMatrix.addObserver(matrixController);
-                                           matrixController.setVisible(true);
-                                       }
-                                   }
+        SwingUtilities.invokeLater(
+            new Runnable() {
+                public void run() {
+                    Matrix currentMatrix = new Matrix();
+                    MatrixController matrixController = new MatrixController(
+                        currentMatrix
+                    );
+                    matrixController.setDefaultCloseOperation(
+                        JFrame.EXIT_ON_CLOSE
+                    );
+                    currentMatrix.addObserver(matrixController);
+                    matrixController.setVisible(true);
+                }
+            }
         );
     }
 
     @Override
     public void update(Observable observable, Object arg) {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                matrixView.update(observable, arg);
-                textField.setText("Elapsed time : " + (System.currentTimeMillis() - lastTime) + "ms - x = " + matrix.getActiveBlock().getCoordinate().x + " y = " + matrix.getActiveBlock().getCoordinate().y);
-                lastTime = System.currentTimeMillis();
+        SwingUtilities.invokeLater(
+            new Runnable() {
+                public void run() {
+                    matrixView.update(observable, arg);
+                    textField.setText(
+                        "Elapsed time : " +
+                        (System.currentTimeMillis() - lastTime) +
+                        "ms - x = " +
+                        matrix.getActiveTetromino().getCoordinate().x +
+                        " y = " +
+                        matrix.getActiveTetromino().getCoordinate().y
+                    );
+                    lastTime = System.currentTimeMillis();
+                }
             }
-        });
+        );
     }
 }
