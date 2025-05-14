@@ -23,8 +23,8 @@ public class Block implements Runnable {
         Point nextCoordinate = new Point(coordinate.x + nextMove.x, coordinate.y + nextMove.y);
         if (matrix.isCoordinateValid(nextCoordinate)) {
             coordinate = nextCoordinate;
-            nextMove = new Point(0, 0);
         }
+        nextMove = new Point(0, 0);
     }
 
     public void action(Direction direction) {
