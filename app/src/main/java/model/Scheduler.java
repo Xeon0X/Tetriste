@@ -12,7 +12,7 @@ public class Scheduler extends Thread {
     public void run() {
         while (running) {
             try {
-                Thread.sleep(400);
+                Thread.sleep(1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
