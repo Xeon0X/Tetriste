@@ -1,12 +1,13 @@
 package model;
 
-import java.awt.*;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
+
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -26,10 +27,11 @@ public class Tetromino implements Runnable {
     @Override
     public void run() {
         Point nextCoordinate = new Point(
-            coordinate.x + nextMove.x,
-            coordinate.y + nextMove.y
+                coordinate.x + nextMove.x,
+                coordinate.y + nextMove.y
         );
-        if (matrix.isCoordinateValid(nextCoordinate)) {
+
+        if (isValidPosition(nextCoordinate)) {
             coordinate = nextCoordinate;
         }
         nextMove = new Point(0, 0);
@@ -51,7 +53,7 @@ public class Tetromino implements Runnable {
             }
             case HARD_DROP -> {
                 nextMove.y = matrix.SIZE_Y - coordinate.y - 1;
-                System.out.println("test" + (matrix.SIZE_Y - coordinate.y));
+                System.out.println("hard_drop");
             }
             case UP -> {
                 nextMove.y = -1;
@@ -61,14 +63,44 @@ public class Tetromino implements Runnable {
         run();
     }
 
+    public boolean canMoveInDirection(Direction direction) {
+        Point nextPos = new Point(coordinate);
+        switch (direction) {
+            case LEFT -> nextPos.x -= 1;
+            case RIGHT -> nextPos.x += 1;
+            case SOFT_DROP -> nextPos.y += 1;
+            case UP -> nextPos.y -= 1;
+        }
+        return isValidPosition(nextPos);
+    }
+
+    private boolean isValidPosition(Point position) {
+        int size = shape.getSize();
+        boolean[][] pattern = shape.getPattern();
+
+        for (int y = 0; y < size; y++) {
+            for (int x = 0; x < size; x++) {
+                if (pattern[y][x]) {
+                    int worldX = position.x + x;
+                    int worldY = position.y + y;
+
+                    if (matrix.isCellOccupied(worldX, worldY)) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
     public List<Point> getCoordinates() {
         int size = shape.getSize();
         List<Point> coordinates = new ArrayList<>();
-        for (int x = 0; x < size; x++) {
-            for (int y = 0; y < size; y++) {
-                if (shape.getPattern()[x][y]) {
+        for (int y = 0; y < size; y++) {
+            for (int x = 0; x < size; x++) {
+                if (shape.getPattern()[y][x]) {
                     coordinates.add(
-                        new Point(coordinate.x + x, coordinate.y + y)
+                            new Point(coordinate.x + x, coordinate.y + y)
                     );
                 }
             }

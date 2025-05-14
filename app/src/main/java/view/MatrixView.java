@@ -1,11 +1,12 @@
 package view;
 
+import model.Matrix;
+
+import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferStrategy;
 import java.util.Observable;
 import java.util.Observer;
-import javax.swing.*;
-import model.Matrix;
 
 public class MatrixView extends JPanel implements Observer {
 
@@ -19,8 +20,8 @@ public class MatrixView extends JPanel implements Observer {
         setLayout(new BorderLayout());
         setBackground(Color.black);
         Dimension dimension = new Dimension(
-            CELL_PIXEL_SIZE * matrix.SIZE_X,
-            CELL_PIXEL_SIZE * matrix.SIZE_Y
+                CELL_PIXEL_SIZE * matrix.SIZE_X,
+                CELL_PIXEL_SIZE * matrix.SIZE_Y
         );
 
         canvas = new Canvas() {
@@ -30,62 +31,62 @@ public class MatrixView extends JPanel implements Observer {
                     for (int y = 0; y < matrix.SIZE_Y; y++) {
                         g.setColor(Color.WHITE);
                         g.fillRect(
-                            x * CELL_PIXEL_SIZE,
-                            y * CELL_PIXEL_SIZE,
-                            CELL_PIXEL_SIZE,
-                            CELL_PIXEL_SIZE
+                                x * CELL_PIXEL_SIZE,
+                                y * CELL_PIXEL_SIZE,
+                                CELL_PIXEL_SIZE,
+                                CELL_PIXEL_SIZE
                         );
                         g.setColor(Color.BLACK);
                         g.drawRoundRect(
-                            x * CELL_PIXEL_SIZE,
-                            y * CELL_PIXEL_SIZE,
-                            CELL_PIXEL_SIZE,
-                            CELL_PIXEL_SIZE,
-                            ARC_SIZE,
-                            ARC_SIZE
+                                x * CELL_PIXEL_SIZE,
+                                y * CELL_PIXEL_SIZE,
+                                CELL_PIXEL_SIZE,
+                                CELL_PIXEL_SIZE,
+                                ARC_SIZE,
+                                ARC_SIZE
                         );
+
+                        // Draw placed blocks
+                        if (matrix.getGrid()[x][y]) {
+                            g.setColor(Color.GREEN);
+                            g.fillRect(
+                                    x * CELL_PIXEL_SIZE,
+                                    y * CELL_PIXEL_SIZE,
+                                    CELL_PIXEL_SIZE,
+                                    CELL_PIXEL_SIZE
+                            );
+                        }
                     }
                 }
 
-                // Draw the Tetromino full shape
+                // Draw the Tetromino outline
                 int shapeSize = matrix
-                    .getActiveTetromino()
-                    .getShape()
-                    .getSize();
+                        .getActiveTetromino()
+                        .getShape()
+                        .getSize();
                 g.setColor(Color.RED);
                 g.drawRoundRect(
-                    matrix.getActiveTetromino().getCoordinate().x *
-                    CELL_PIXEL_SIZE,
-                    matrix.getActiveTetromino().getCoordinate().y *
-                    CELL_PIXEL_SIZE,
-                    shapeSize * CELL_PIXEL_SIZE,
-                    shapeSize * CELL_PIXEL_SIZE,
-                    ARC_SIZE,
-                    ARC_SIZE
+                        matrix.getActiveTetromino().getCoordinate().x *
+                                CELL_PIXEL_SIZE,
+                        matrix.getActiveTetromino().getCoordinate().y *
+                                CELL_PIXEL_SIZE,
+                        shapeSize * CELL_PIXEL_SIZE,
+                        shapeSize * CELL_PIXEL_SIZE,
+                        ARC_SIZE,
+                        ARC_SIZE
                 );
 
                 g.setColor(Color.BLUE);
                 for (Point coordinate : matrix
-                    .getActiveTetromino()
-                    .getCoordinates()) {
+                        .getActiveTetromino()
+                        .getCoordinates()) {
                     g.fillRect(
-                        coordinate.x * CELL_PIXEL_SIZE,
-                        coordinate.y * CELL_PIXEL_SIZE,
-                        CELL_PIXEL_SIZE,
-                        CELL_PIXEL_SIZE
+                            coordinate.x * CELL_PIXEL_SIZE,
+                            coordinate.y * CELL_PIXEL_SIZE,
+                            CELL_PIXEL_SIZE,
+                            CELL_PIXEL_SIZE
                     );
                 }
-                g.setColor(Color.RED);
-                g.drawRoundRect(
-                    matrix.getActiveTetromino().getCoordinate().x *
-                    CELL_PIXEL_SIZE,
-                    matrix.getActiveTetromino().getCoordinate().y *
-                    CELL_PIXEL_SIZE,
-                    CELL_PIXEL_SIZE,
-                    CELL_PIXEL_SIZE,
-                    ARC_SIZE,
-                    ARC_SIZE
-                );
             }
         };
 
