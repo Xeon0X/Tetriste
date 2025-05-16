@@ -33,6 +33,11 @@ public class Matrix extends Observable implements Runnable {
                 .coordinate(new Point(SIZE_X / 2 - 2, 0))
                 .shape(Shape.values()[(int) (Math.random() * Shape.values().length)])
                 .build();
+
+        if (isGameOver()) {
+            setChanged();
+            notifyObservers("GAME_OVER");
+        }
     }
 
     @Override
@@ -104,5 +109,17 @@ public class Matrix extends Observable implements Runnable {
             return true;
         }
         return grid[x][y];
+    }
+
+    public boolean isGameOver() {
+        for (Point coordinate : activeTetromino.getCoordinates()) {
+            int x = coordinate.x;
+            int y = coordinate.y;
+
+            if (grid[x][y]) {
+                return true;
+            }
+        }
+        return false;
     }
 }

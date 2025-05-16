@@ -1,7 +1,6 @@
 package controller;
 
 import view.GameOverView;
-import view.HomeView;
 
 import javax.swing.*;
 import java.awt.event.ActionListener;
@@ -30,9 +29,8 @@ public class GameOverController extends JFrame {
 
     private void setupListeners() {
         ActionListener homeListener = e -> {
-            dispose(); // Close the current window
+            dispose();
 
-            // Create and show the home controller
             SwingUtilities.invokeLater(() -> {
                 HomeController homeController = new HomeController();
                 homeController.setVisible(true);

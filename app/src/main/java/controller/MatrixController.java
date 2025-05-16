@@ -107,6 +107,11 @@ public class MatrixController extends JFrame implements Observer {
 
     @Override
     public void update(Observable observable, Object arg) {
+        if ("GAME_OVER".equals(arg)) {
+            showGameOverScreen();
+            return;
+        }
+
         SwingUtilities.invokeLater(
                 new Runnable() {
                     public void run() {
@@ -123,5 +128,14 @@ public class MatrixController extends JFrame implements Observer {
                     }
                 }
         );
+    }
+
+    private void showGameOverScreen() {
+        matrix.deleteObserver(this);
+        dispose();
+        SwingUtilities.invokeLater(() -> {
+            GameOverController gameOverController = new GameOverController();
+            gameOverController.setVisible(true);
+        });
     }
 }
