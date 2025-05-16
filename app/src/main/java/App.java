@@ -1,7 +1,7 @@
-import controller.MatrixController;
+import controller.HomeController;
 
 public class App {
     public static void main(String[] args) {
-        MatrixController.main(args);
+        HomeController.main(args);
     }
 }

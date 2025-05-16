@@ -28,6 +28,7 @@ public class MatrixController extends JFrame implements Observer {
         matrix = _matrix;
 
         setSize(400, 400);
+        setLocationRelativeTo(null);
         JPanel panel = new JPanel(new BorderLayout());
         panel.add(textField, BorderLayout.NORTH);
         panel.add(button, BorderLayout.SOUTH);
