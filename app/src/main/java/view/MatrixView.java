@@ -4,106 +4,90 @@ import model.Matrix;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.image.BufferStrategy;
 import java.util.Observable;
 import java.util.Observer;
 
 public class MatrixView extends JPanel implements Observer {
-
-    private static final int CELL_PIXEL_SIZE = 16;
-    private static final int ARC_SIZE = 3;
     private final Matrix matrix;
-    Canvas canvas;
+    private final Color[] colors = {
+            Color.CYAN, Color.BLUE, Color.ORANGE,
+            Color.YELLOW, Color.GREEN, Color.MAGENTA, Color.RED
+    };
+    private int cellSize;
 
-    public MatrixView(Matrix _matrix) {
-        matrix = _matrix;
-        setLayout(new BorderLayout());
-        setBackground(Color.black);
-        Dimension dimension = new Dimension(
-                CELL_PIXEL_SIZE * matrix.SIZE_X,
-                CELL_PIXEL_SIZE * matrix.SIZE_Y
-        );
+    public MatrixView(Matrix matrix) {
+        this.matrix = matrix;
+        setBackground(Color.WHITE);
+        calculateCellSize();
+    }
 
-        canvas = new Canvas() {
-            public void paint(Graphics g) {
-                // Draw the grid
-                for (int x = 0; x < matrix.SIZE_X; x++) {
-                    for (int y = 0; y < matrix.SIZE_Y; y++) {
-                        g.setColor(Color.WHITE);
-                        g.fillRect(
-                                x * CELL_PIXEL_SIZE,
-                                y * CELL_PIXEL_SIZE,
-                                CELL_PIXEL_SIZE,
-                                CELL_PIXEL_SIZE
-                        );
-                        g.setColor(Color.BLACK);
-                        g.drawRoundRect(
-                                x * CELL_PIXEL_SIZE,
-                                y * CELL_PIXEL_SIZE,
-                                CELL_PIXEL_SIZE,
-                                CELL_PIXEL_SIZE,
-                                ARC_SIZE,
-                                ARC_SIZE
-                        );
+    private void calculateCellSize() {
+        Dimension size = getSize();
+        int width = size.width;
+        int height = size.height;
 
-                        // Draw placed blocks
-                        if (matrix.getGrid()[x][y]) {
-                            g.setColor(Color.GREEN);
-                            g.fillRect(
-                                    x * CELL_PIXEL_SIZE,
-                                    y * CELL_PIXEL_SIZE,
-                                    CELL_PIXEL_SIZE,
-                                    CELL_PIXEL_SIZE
-                            );
-                        }
-                    }
-                }
+        if (width == 0 || height == 0) {
+            cellSize = 20;
+            return;
+        }
 
-                // Draw the Tetromino outline
-                int shapeSize = matrix
-                        .getActiveTetromino()
-                        .getShape()
-                        .getSize();
-                g.setColor(Color.RED);
-                g.drawRoundRect(
-                        matrix.getActiveTetromino().getCoordinate().x *
-                                CELL_PIXEL_SIZE,
-                        matrix.getActiveTetromino().getCoordinate().y *
-                                CELL_PIXEL_SIZE,
-                        shapeSize * CELL_PIXEL_SIZE,
-                        shapeSize * CELL_PIXEL_SIZE,
-                        ARC_SIZE,
-                        ARC_SIZE
-                );
+        int cellSizeX = (width - 20) / matrix.SIZE_X;
+        int cellSizeY = (height - 20) / matrix.SIZE_Y;
 
-                g.setColor(Color.BLUE);
-                for (Point coordinate : matrix
-                        .getActiveTetromino()
-                        .getCoordinates()) {
-                    g.fillRect(
-                            coordinate.x * CELL_PIXEL_SIZE,
-                            coordinate.y * CELL_PIXEL_SIZE,
-                            CELL_PIXEL_SIZE,
-                            CELL_PIXEL_SIZE
-                    );
-                }
-            }
-        };
-
-        canvas.setPreferredSize(dimension);
-        add(canvas, BorderLayout.CENTER);
+        cellSize = Math.max(10, Math.min(cellSizeX, cellSizeY));
     }
 
     @Override
-    public void update(Observable observable, Object arg) {
-        BufferStrategy bufferStrategy = canvas.getBufferStrategy(); // bs + dispose + show : double buffering to avoid flickering
-        if (bufferStrategy == null) {
-            canvas.createBufferStrategy(2);
-            return;
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        calculateCellSize();
+
+        int gridWidth = cellSize * matrix.SIZE_X;
+        int gridHeight = cellSize * matrix.SIZE_Y;
+
+        int startX = (getWidth() - gridWidth) / 2;
+        int startY = (getHeight() - gridHeight) / 2;
+
+        g.setColor(Color.LIGHT_GRAY);
+        for (int x = 0; x <= matrix.SIZE_X; x++) {
+            g.drawLine(startX + x * cellSize, startY,
+                    startX + x * cellSize, startY + gridHeight);
         }
-        Graphics graphics = bufferStrategy.getDrawGraphics();
-        canvas.paint(graphics);
-        graphics.dispose();
-        bufferStrategy.show();
+        for (int y = 0; y <= matrix.SIZE_Y; y++) {
+            g.drawLine(startX, startY + y * cellSize,
+                    startX + gridWidth, startY + y * cellSize);
+        }
+
+        for (int x = 0; x < matrix.SIZE_X; x++) {
+            for (int y = 0; y < matrix.SIZE_Y; y++) {
+                if (matrix.isCellOccupied(x, y)) {
+                    g.setColor(Color.BLACK);
+                    g.fillRect(startX + x * cellSize + 1,
+                            startY + y * cellSize + 1,
+                            cellSize - 1, cellSize - 1);
+                }
+            }
+        }
+
+        if (matrix.getActiveTetromino() != null) {
+            g.setColor(colors[matrix.getActiveTetromino().getShape().ordinal() % colors.length]);
+            for (Point p : matrix.getActiveTetromino().getCoordinates()) {
+                g.fillRect(startX + p.x * cellSize + 1,
+                        startY + p.y * cellSize + 1,
+                        cellSize - 1, cellSize - 1);
+            }
+        }
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+        repaint();
+    }
+
+    @Override
+    public Dimension getPreferredSize() {
+        calculateCellSize();
+        return new Dimension(matrix.SIZE_X * cellSize + 20,
+                matrix.SIZE_Y * cellSize + 20);
     }
 }
