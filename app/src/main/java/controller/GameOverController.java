@@ -8,13 +8,13 @@ import java.awt.event.ActionListener;
 public class GameOverController extends JFrame {
     private final GameOverView gameOverView;
 
-    public GameOverController() {
+    public GameOverController(int score) {
         setTitle("Game Over");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(500, 400);
         setLocationRelativeTo(null);
 
-        gameOverView = new GameOverView();
+        gameOverView = new GameOverView(score);
         setContentPane(gameOverView);
 
         setupListeners();
@@ -22,7 +22,7 @@ public class GameOverController extends JFrame {
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            GameOverController gameOverController = new GameOverController();
+            GameOverController gameOverController = new GameOverController(0);
             gameOverController.setVisible(true);
         });
     }

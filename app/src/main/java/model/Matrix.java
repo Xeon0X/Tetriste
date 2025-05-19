@@ -15,14 +15,15 @@ public class Matrix extends Observable implements Runnable {
     public final int SIZE_Y;
     private boolean[][] grid;
     private Scheduler scheduler;
-
     private Tetromino activeTetromino;
+    private int score;
 
     @Builder
     public Matrix(int sizeX, int sizeY) {
         this.SIZE_X = sizeX > 0 ? sizeX : 10;
         this.SIZE_Y = sizeY > 0 ? sizeY : 20;
         this.grid = new boolean[SIZE_X][SIZE_Y];
+        this.score = 0;
 
         spawnNewTetromino();
         this.scheduler = new Scheduler(this);
@@ -64,6 +65,7 @@ public class Matrix extends Observable implements Runnable {
     }
 
     private void checkAndClearLines() {
+        int linesCleared = 0;
         for (int y = SIZE_Y - 1; y >= 0; y--) {
             boolean isLineComplete = true;
             for (int x = 0; x < SIZE_X; x++) {
@@ -75,9 +77,27 @@ public class Matrix extends Observable implements Runnable {
 
             if (isLineComplete) {
                 clearLine(y);
+                linesCleared++;
                 y++;
             }
         }
+
+        if (linesCleared > 0) {
+            updateScoreLine(linesCleared);
+        }
+    }
+
+    private void updateScoreLine(int linesCleared) {
+        switch (linesCleared) {
+            case 1 -> updateScore(100);
+            case 2 -> updateScore(300);
+            case 3 -> updateScore(500);
+            case 4 -> updateScore(800);
+        }
+    }
+
+    private void updateScore(int score) {
+        this.score += score;
     }
 
     private void clearLine(int lineY) {
@@ -94,9 +114,12 @@ public class Matrix extends Observable implements Runnable {
 
     public void action(Direction direction) {
         if (direction == Direction.HARD_DROP) {
+            int cells = 0;
             while (activeTetromino.canMoveInDirection(Direction.SOFT_DROP)) {
                 activeTetromino.action(Direction.SOFT_DROP);
+                cells++;
             }
+            updateScore(cells * 2);
             validateTetromino();
             spawnNewTetromino();
         } else {
@@ -104,6 +127,7 @@ public class Matrix extends Observable implements Runnable {
 
             if (direction == Direction.SOFT_DROP) {
                 scheduler.resetTimer();
+                updateScore(1);
             }
         }
         setChanged();

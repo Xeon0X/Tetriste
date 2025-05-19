@@ -5,8 +5,14 @@ import lombok.Getter;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 
 public class HomeView extends JPanel {
+    private static final float BASE_TITLE_SIZE = 36f;
+    private static final float BASE_BUTTON_SIZE = 20f;
+    private static final int WIDTH = 500;
+    private static final int HEIGHT = 400;
 
     private final JLabel titleLabel;
     @Getter
@@ -22,7 +28,7 @@ public class HomeView extends JPanel {
         JPanel titlePanel = new JPanel();
         titlePanel.setBorder(BorderFactory.createEmptyBorder(30, 0, 0, 0));
         titleLabel = new JLabel("Tetriste");
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 36));
+        titleLabel.setFont(new Font("Arial", Font.BOLD, (int) BASE_TITLE_SIZE));
         titlePanel.add(titleLabel);
         add(titlePanel, BorderLayout.NORTH);
 
@@ -31,19 +37,46 @@ public class HomeView extends JPanel {
         difficultyPanel.setBorder(BorderFactory.createEmptyBorder(50, 100, 50, 100));
 
         easyButton = new JButton("Facile");
-        easyButton.setFont(new Font("Arial", Font.PLAIN, 20));
+        easyButton.setFont(new Font("Arial", Font.PLAIN, (int) BASE_BUTTON_SIZE));
 
         mediumButton = new JButton("Moyen");
-        mediumButton.setFont(new Font("Arial", Font.PLAIN, 20));
+        mediumButton.setFont(new Font("Arial", Font.PLAIN, (int) BASE_BUTTON_SIZE));
 
         hardButton = new JButton("Difficile");
-        hardButton.setFont(new Font("Arial", Font.PLAIN, 20));
+        hardButton.setFont(new Font("Arial", Font.PLAIN, (int) BASE_BUTTON_SIZE));
 
         difficultyPanel.add(easyButton);
         difficultyPanel.add(mediumButton);
         difficultyPanel.add(hardButton);
 
         add(difficultyPanel, BorderLayout.CENTER);
+
+        addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                updateFonts();
+            }
+        });
+    }
+
+    private void updateFonts() {
+        int width = getWidth();
+        int height = getHeight();
+
+        if (width <= 0 || height <= 0) return;
+
+        float scaleFactor = Math.min((float) width / WIDTH, (float) height / HEIGHT);
+
+        titleLabel.setFont(new Font("Arial", Font.BOLD,
+                Math.max(12, Math.round(BASE_TITLE_SIZE * scaleFactor))));
+
+        int buttonFontSize = Math.max(12, Math.round(BASE_BUTTON_SIZE * scaleFactor));
+
+        easyButton.setFont(new Font("Arial", Font.PLAIN, buttonFontSize));
+        mediumButton.setFont(new Font("Arial", Font.PLAIN, buttonFontSize));
+        hardButton.setFont(new Font("Arial", Font.PLAIN, buttonFontSize));
+
+        revalidate();
     }
 
     public void setDifficultyActionListener(ActionListener listener) {
@@ -51,5 +84,4 @@ public class HomeView extends JPanel {
         mediumButton.addActionListener(listener);
         hardButton.addActionListener(listener);
     }
-
 }

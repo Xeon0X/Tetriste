@@ -140,7 +140,7 @@ public class MatrixController extends JFrame implements Observer {
         matrix.deleteObserver(this);
         dispose();
         SwingUtilities.invokeLater(() -> {
-            GameOverController gameOverController = new GameOverController();
+            GameOverController gameOverController = new GameOverController(matrix.getScore());
             gameOverController.setVisible(true);
         });
     }
