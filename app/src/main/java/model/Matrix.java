@@ -133,6 +133,7 @@ public class Matrix extends Observable implements Runnable {
     }
 
     public boolean isCellOccupied(Point point) {
+        System.out.println(point);
         return matrix[point.x][point.y];
     }
 
@@ -141,7 +142,10 @@ public class Matrix extends Observable implements Runnable {
     }
 
     public boolean isPositionValid(Point point) {
-        return (isInMatrix(point) || !isCellOccupied(point));
+        if (isInMatrix(point)) {
+            return !isCellOccupied(point);
+        }
+        return false;
     }
 
     public boolean isPositionValid(Tetromino tetromino) {
