@@ -5,7 +5,6 @@ import java.util.Observable;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-import model.ShapeUtils;
 
 @Getter
 @Setter
@@ -63,11 +62,9 @@ public class Matrix extends Observable implements Runnable {
     }
 
     private void spawnNewTetromino() {
-        Shape shape = Shape.values()[(int) (Math.random() * Shape.values().length)];
         this.activeTetromino = new Tetromino.TetrominoBuilder()
             .position(new Point(SIZE_X / 2 - 2, 0))
-            .minos(ShapeUtils.createMinos(shape))
-            .shape(shape)
+            .shape(new Shape(ShapeLetter.values()[(int) (Math.random() * ShapeLetter.values().length)]))
             .build();
 
         if (isGameOver()) {
