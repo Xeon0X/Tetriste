@@ -14,6 +14,7 @@ public class Matrix extends Observable implements Runnable {
     public final int SIZE_X;
     public final int SIZE_Y;
     private boolean[][] grid;
+    private Scheduler scheduler;
 
     private Tetromino activeTetromino;
 
@@ -24,7 +25,8 @@ public class Matrix extends Observable implements Runnable {
         this.grid = new boolean[SIZE_X][SIZE_Y];
 
         spawnNewTetromino();
-        new Scheduler(this).start();
+        this.scheduler = new Scheduler(this);
+        this.scheduler.start();
     }
 
     private void spawnNewTetromino() {
@@ -99,6 +101,10 @@ public class Matrix extends Observable implements Runnable {
             spawnNewTetromino();
         } else {
             activeTetromino.action(direction);
+
+            if (direction == Direction.SOFT_DROP) {
+                scheduler.resetTimer();
+            }
         }
         setChanged();
         notifyObservers();
