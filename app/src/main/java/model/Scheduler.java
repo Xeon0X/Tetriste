@@ -1,6 +1,7 @@
 package model;
 
 public class Scheduler extends Thread {
+
     public Runnable runnable;
     public boolean running = true;
     public long interval = 1000;
@@ -8,6 +9,7 @@ public class Scheduler extends Thread {
 
     public Scheduler(Runnable _runnable) {
         runnable = _runnable;
+        lastResetTime = System.currentTimeMillis();
     }
 
     public void resetTimer() {

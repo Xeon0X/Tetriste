@@ -1,11 +1,11 @@
 package model;
 
+import java.awt.*;
+import java.util.Observable;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.awt.*;
-import java.util.Observable;
+import model.ShapeUtils;
 
 @Getter
 @Setter
@@ -13,7 +13,7 @@ public class Matrix extends Observable implements Runnable {
 
     public final int SIZE_X;
     public final int SIZE_Y;
-    private boolean[][] grid;
+    private boolean[][] matrix;
     private Scheduler scheduler;
     private Tetromino activeTetromino;
     private int score;
@@ -22,20 +22,53 @@ public class Matrix extends Observable implements Runnable {
     public Matrix(int sizeX, int sizeY) {
         this.SIZE_X = sizeX > 0 ? sizeX : 10;
         this.SIZE_Y = sizeY > 0 ? sizeY : 20;
-        this.grid = new boolean[SIZE_X][SIZE_Y];
+        this.matrix = new boolean[SIZE_X][SIZE_Y];
         this.score = 0;
 
-        spawnNewTetromino();
         this.scheduler = new Scheduler(this);
         this.scheduler.start();
+
+        spawnNewTetromino();
+
+        setChanged();
+        notifyObservers();
+    }
+
+    @Override
+    public void run() {
+        System.out.println("gravity");
+        try {
+            // Gravity
+            Tetromino preview = this.getActiveTetromino().previewAction(Action.SOFT_DROP);
+            if (this.isPositionValid(preview)) {
+                this.getActiveTetromino().applyAction(Action.SOFT_DROP);
+            } else {
+                validateTetromino();
+                spawnNewTetromino();
+            }
+            setChanged();
+            notifyObservers();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void moveTetromino(Action action) {
+        Tetromino preview = this.getActiveTetromino().previewAction(action);
+        if (this.isPositionValid(preview)) {
+            this.getActiveTetromino().applyAction(action);
+        }
+        setChanged();
+        notifyObservers();
     }
 
     private void spawnNewTetromino() {
+        Shape shape = Shape.values()[(int) (Math.random() * Shape.values().length)];
         this.activeTetromino = new Tetromino.TetrominoBuilder()
-                .matrix(this)
-                .coordinate(new Point(SIZE_X / 2 - 2, 0))
-                .shape(Shape.values()[(int) (Math.random() * Shape.values().length)])
-                .build();
+            .position(new Point(SIZE_X / 2 - 2, 0))
+            .minos(ShapeUtils.createMinos(shape))
+            .shape(shape)
+            .build();
 
         if (isGameOver()) {
             setChanged();
@@ -43,22 +76,10 @@ public class Matrix extends Observable implements Runnable {
         }
     }
 
-    @Override
-    public void run() {
-        if (activeTetromino.canMoveInDirection(Direction.SOFT_DROP)) {
-            activeTetromino.action(Direction.SOFT_DROP);
-        } else {
-            validateTetromino();
-            spawnNewTetromino();
-        }
-        setChanged();
-        notifyObservers();
-    }
-
     private void validateTetromino() {
-        for (Point p : activeTetromino.getCoordinates()) {
+        for (Point p : activeTetromino.getMinos()) {
             if (p.x >= 0 && p.x < SIZE_X && p.y >= 0 && p.y < SIZE_Y) {
-                grid[p.x][p.y] = true;
+                matrix[p.x][p.y] = true;
             }
         }
         checkAndClearLines();
@@ -69,7 +90,7 @@ public class Matrix extends Observable implements Runnable {
         for (int y = SIZE_Y - 1; y >= 0; y--) {
             boolean isLineComplete = true;
             for (int x = 0; x < SIZE_X; x++) {
-                if (!grid[x][y]) {
+                if (!matrix[x][y]) {
                     isLineComplete = false;
                     break;
                 }
@@ -87,6 +108,20 @@ public class Matrix extends Observable implements Runnable {
         }
     }
 
+    private void clearLine(int lineY) {
+        for (int y = lineY; y > 0; y--) {
+            for (int x = 0; x < SIZE_X; x++) {
+                matrix[x][y] = matrix[x][y - 1];
+            }
+        }
+
+        for (int x = 0; x < SIZE_X; x++) {
+            matrix[x][0] = false;
+        }
+        setChanged();
+        notifyObservers();
+    }
+
     private void updateScoreLine(int linesCleared) {
         switch (linesCleared) {
             case 1 -> updateScore(100);
@@ -100,53 +135,33 @@ public class Matrix extends Observable implements Runnable {
         this.score += score;
     }
 
-    private void clearLine(int lineY) {
-        for (int y = lineY; y > 0; y--) {
-            for (int x = 0; x < SIZE_X; x++) {
-                grid[x][y] = grid[x][y - 1];
-            }
-        }
-
-        for (int x = 0; x < SIZE_X; x++) {
-            grid[x][0] = false;
-        }
+    public boolean isCellOccupied(Point point) {
+        return matrix[point.x][point.y];
     }
 
-    public void action(Direction direction) {
-        if (direction == Direction.HARD_DROP) {
-            int cells = 0;
-            while (activeTetromino.canMoveInDirection(Direction.SOFT_DROP)) {
-                activeTetromino.action(Direction.SOFT_DROP);
-                cells++;
-            }
-            updateScore(cells * 2);
-            validateTetromino();
-            spawnNewTetromino();
-        } else {
-            activeTetromino.action(direction);
-
-            if (direction == Direction.SOFT_DROP) {
-                scheduler.resetTimer();
-                updateScore(1);
-            }
-        }
-        setChanged();
-        notifyObservers();
+    public boolean isInMatrix(Point point) {
+        return (point.x >= 0 && point.x < SIZE_X && point.y >= 0 && point.y < SIZE_Y);
     }
 
-    public boolean isCellOccupied(int x, int y) {
-        if (x < 0 || x >= SIZE_X || y < 0 || y >= SIZE_Y) {
-            return true;
+    public boolean isPositionValid(Point point) {
+        return (isInMatrix(point) || !isCellOccupied(point));
+    }
+
+    public boolean isPositionValid(Tetromino tetromino) {
+        for (Point point : tetromino.getMinos()) {
+            if (!isPositionValid(point)) {
+                return false;
+            }
         }
-        return grid[x][y];
+        return true;
     }
 
     public boolean isGameOver() {
-        for (Point coordinate : activeTetromino.getCoordinates()) {
+        for (Point coordinate : activeTetromino.getMinos()) {
             int x = coordinate.x;
             int y = coordinate.y;
 
-            if (grid[x][y]) {
+            if (matrix[x][y]) {
                 return true;
             }
         }

@@ -1,20 +1,25 @@
 package view;
 
-import model.Matrix;
-
-import javax.swing.*;
 import java.awt.*;
 import java.util.Observable;
 import java.util.Observer;
+import javax.swing.*;
+import model.Matrix;
 
 public class MatrixView extends JPanel implements Observer {
+
     private static final float BASE_SCORE_FONT_SIZE = 16f;
     private static final int WIDTH = 400;
     private static final int HEIGHT = 600;
     private final Matrix matrix;
     private final Color[] colors = {
-            Color.CYAN, Color.BLUE, Color.ORANGE,
-            Color.YELLOW, Color.GREEN, Color.MAGENTA, Color.RED
+        Color.CYAN,
+        Color.BLUE,
+        Color.ORANGE,
+        Color.YELLOW,
+        Color.GREEN,
+        Color.MAGENTA,
+        Color.RED,
     };
     private int cellSize;
 
@@ -74,31 +79,25 @@ public class MatrixView extends JPanel implements Observer {
 
         g.setColor(Color.LIGHT_GRAY);
         for (int x = 0; x <= matrix.SIZE_X; x++) {
-            g.drawLine(startX + x * cellSize, startY,
-                    startX + x * cellSize, startY + gridHeight);
+            g.drawLine(startX + x * cellSize, startY, startX + x * cellSize, startY + gridHeight);
         }
         for (int y = 0; y <= matrix.SIZE_Y; y++) {
-            g.drawLine(startX, startY + y * cellSize,
-                    startX + gridWidth, startY + y * cellSize);
+            g.drawLine(startX, startY + y * cellSize, startX + gridWidth, startY + y * cellSize);
         }
 
         for (int x = 0; x < matrix.SIZE_X; x++) {
             for (int y = 0; y < matrix.SIZE_Y; y++) {
-                if (matrix.isCellOccupied(x, y)) {
+                if (matrix.isPositionValid(new Point(x, y))) {
                     g.setColor(Color.BLACK);
-                    g.fillRect(startX + x * cellSize + 1,
-                            startY + y * cellSize + 1,
-                            cellSize - 1, cellSize - 1);
+                    g.fillRect(startX + x * cellSize + 1, startY + y * cellSize + 1, cellSize - 1, cellSize - 1);
                 }
             }
         }
 
         if (matrix.getActiveTetromino() != null) {
             g.setColor(colors[matrix.getActiveTetromino().getShape().ordinal() % colors.length]);
-            for (Point p : matrix.getActiveTetromino().getCoordinates()) {
-                g.fillRect(startX + p.x * cellSize + 1,
-                        startY + p.y * cellSize + 1,
-                        cellSize - 1, cellSize - 1);
+            for (Point p : matrix.getActiveTetromino().getMinos()) {
+                g.fillRect(startX + p.x * cellSize + 1, startY + p.y * cellSize + 1, cellSize - 1, cellSize - 1);
             }
         }
     }
@@ -111,7 +110,6 @@ public class MatrixView extends JPanel implements Observer {
     @Override
     public Dimension getPreferredSize() {
         calculateCellSize();
-        return new Dimension(matrix.SIZE_X * cellSize + 20,
-                matrix.SIZE_Y * cellSize + 20);
+        return new Dimension(matrix.SIZE_X * cellSize + 20, matrix.SIZE_Y * cellSize + 20);
     }
 }

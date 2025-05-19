@@ -1,10 +1,10 @@
 package controller;
 
+import java.awt.event.ActionListener;
+import javax.swing.*;
 import model.Matrix;
 import view.HomeView;
-
-import javax.swing.*;
-import java.awt.event.ActionListener;
+import view.MatrixView;
 
 public class HomeController extends JFrame {
 
@@ -53,21 +53,18 @@ public class HomeController extends JFrame {
 
         SwingUtilities.invokeLater(() -> {
             int sizeX = 10;
-            int sizeY = switch (difficulty) {
-                case 0 -> 24;
-                case 1 -> 20;
-                case 2 -> 16;
-                default -> 24;
-            };
+            int sizeY =
+                switch (difficulty) {
+                    case 0 -> 24;
+                    case 1 -> 20;
+                    case 2 -> 16;
+                    default -> 24;
+                };
 
-            Matrix currentMatrix = Matrix.builder()
-                    .sizeX(sizeX)
-                    .sizeY(sizeY)
-                    .build();
-
+            Matrix currentMatrix = Matrix.builder().sizeX(sizeX).sizeY(sizeY).build();
             MatrixController matrixController = new MatrixController(currentMatrix);
+
             matrixController.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            currentMatrix.addObserver(matrixController);
             matrixController.setVisible(true);
         });
     }
