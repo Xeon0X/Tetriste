@@ -1,9 +1,12 @@
 package view;
 
+import controller.MatrixController;
 import model.Matrix;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -13,15 +16,50 @@ public class MatrixView extends JPanel implements Observer {
     private static final int HEIGHT = 600;
     private final Matrix matrix;
     private final Color[] colors = {
-            Color.CYAN, Color.BLUE, Color.ORANGE,
-            Color.YELLOW, Color.GREEN, Color.MAGENTA, Color.RED
+            Color.CYAN,
+            Color.BLUE,
+            Color.ORANGE,
+            Color.YELLOW,
+            Color.GREEN,
+            Color.MAGENTA,
+            Color.RED,
     };
+    private final MatrixController controller;
+    private final JTextField textField = new JTextField("");
     private int cellSize;
 
-    public MatrixView(Matrix matrix) {
+    public MatrixView(Matrix matrix, MatrixController controller) {
         this.matrix = matrix;
+        this.controller = controller;
+
         setBackground(Color.WHITE);
         calculateCellSize();
+        matrix.addObserver(this);
+
+        setupWindow();
+    }
+
+    private void setupWindow() {
+        JFrame frame = new JFrame("Matrix Game");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(400, 400);
+        frame.setLocationRelativeTo(null);
+
+        JPanel panel = new JPanel(new BorderLayout());
+        textField.setFocusable(false);
+        panel.add(textField, BorderLayout.NORTH);
+        panel.add(this, BorderLayout.CENTER);
+
+        frame.setContentPane(panel);
+        frame.setResizable(true);
+        frame.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                repaint();
+            }
+        });
+
+        frame.setVisible(true);
     }
 
     private void calculateCellSize() {
@@ -74,31 +112,25 @@ public class MatrixView extends JPanel implements Observer {
 
         g.setColor(Color.LIGHT_GRAY);
         for (int x = 0; x <= matrix.SIZE_X; x++) {
-            g.drawLine(startX + x * cellSize, startY,
-                    startX + x * cellSize, startY + gridHeight);
+            g.drawLine(startX + x * cellSize, startY, startX + x * cellSize, startY + gridHeight);
         }
         for (int y = 0; y <= matrix.SIZE_Y; y++) {
-            g.drawLine(startX, startY + y * cellSize,
-                    startX + gridWidth, startY + y * cellSize);
+            g.drawLine(startX, startY + y * cellSize, startX + gridWidth, startY + y * cellSize);
         }
 
         for (int x = 0; x < matrix.SIZE_X; x++) {
             for (int y = 0; y < matrix.SIZE_Y; y++) {
-                if (matrix.isCellOccupied(x, y)) {
+                if (matrix.isPositionValid(new Point(x, y))) {
                     g.setColor(Color.BLACK);
-                    g.fillRect(startX + x * cellSize + 1,
-                            startY + y * cellSize + 1,
-                            cellSize - 1, cellSize - 1);
+                    g.fillRect(startX + x * cellSize + 1, startY + y * cellSize + 1, cellSize - 1, cellSize - 1);
                 }
             }
         }
 
         if (matrix.getActiveTetromino() != null) {
-            g.setColor(colors[matrix.getActiveTetromino().getShape().ordinal() % colors.length]);
-            for (Point p : matrix.getActiveTetromino().getCoordinates()) {
-                g.fillRect(startX + p.x * cellSize + 1,
-                        startY + p.y * cellSize + 1,
-                        cellSize - 1, cellSize - 1);
+            g.setColor(colors[matrix.getActiveTetromino().getShape().getLetter().ordinal() % colors.length]);
+            for (Point p : matrix.getActiveTetromino().getMinos()) {
+                g.fillRect(startX + p.x * cellSize + 1, startY + p.y * cellSize + 1, cellSize - 1, cellSize - 1);
             }
         }
     }
@@ -111,7 +143,6 @@ public class MatrixView extends JPanel implements Observer {
     @Override
     public Dimension getPreferredSize() {
         calculateCellSize();
-        return new Dimension(matrix.SIZE_X * cellSize + 20,
-                matrix.SIZE_Y * cellSize + 20);
+        return new Dimension(matrix.SIZE_X * cellSize + 20, matrix.SIZE_Y * cellSize + 20);
     }
 }

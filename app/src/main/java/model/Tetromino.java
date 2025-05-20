@@ -2,7 +2,6 @@ package model;
 
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.Setter;
 
 import java.awt.*;
@@ -12,99 +11,54 @@ import java.util.List;
 @Getter
 @Setter
 @Builder
-public class Tetromino implements Runnable {
+public class Tetromino {
 
-    @NonNull
-    private Matrix matrix;
-
-    private Point coordinate; // top, left
-
-    @Builder.Default
-    private Point nextMove = new Point(0, 0);
+    // The position of the top left corner of the tetromino on a 3x3 or 4x4 grid.
+    private Point position;
 
     private Shape shape;
 
-    @Override
-    public void run() {
-        Point nextCoordinate = new Point(
-                coordinate.x + nextMove.x,
-                coordinate.y + nextMove.y
-        );
-
-        if (isValidPosition(nextCoordinate)) {
-            coordinate = nextCoordinate;
-        }
-        nextMove = new Point(0, 0);
+    public Tetromino copy() {
+        return new Tetromino.TetrominoBuilder().position(new Point(position)).shape(new Shape(shape)).build();
     }
 
-    public void action(Direction direction) {
-        switch (direction) {
-            case LEFT -> {
-                nextMove.x = -1;
-                System.out.println("left");
-            }
-            case RIGHT -> {
-                nextMove.x = 1;
-                System.out.println("right");
-            }
-            case SOFT_DROP -> {
-                nextMove.y = 1;
-                System.out.println("soft_drop");
-            }
-            case HARD_DROP -> {
-                nextMove.y = matrix.SIZE_Y - coordinate.y - 1;
-                System.out.println("hard_drop");
-            }
-            case UP -> {
-                nextMove.y = -1;
-                System.out.println("up");
-            }
+    public Tetromino previewAction(Action action) {
+        Tetromino preview = this.copy();
+
+        switch (action) {
+            case LEFT -> preview.position.x += -1;
+            case RIGHT -> preview.position.x += 1;
+            case SOFT_DROP -> preview.position.y += 1;
+            case UP -> preview.position.y += -1;
+            case CLOCKWISE -> preview.shape.rotateClockwise();
+            case COUNTER_CLOCKWISE -> preview.shape.rotateCounterClockwise();
+            default -> System.err.println("No action associated with" + action);
         }
-        run();
+        return preview;
     }
 
-    public boolean canMoveInDirection(Direction direction) {
-        Point nextPos = new Point(coordinate);
-        switch (direction) {
-            case LEFT -> nextPos.x -= 1;
-            case RIGHT -> nextPos.x += 1;
-            case SOFT_DROP -> nextPos.y += 1;
-            case UP -> nextPos.y -= 1;
+    public void applyAction(Action action) {
+        switch (action) {
+            case LEFT -> this.position.x += -1;
+            case RIGHT -> this.position.x += 1;
+            case SOFT_DROP -> this.position.y += 1;
+            case UP -> this.position.y += -1;
+            case CLOCKWISE -> this.shape.rotateClockwise();
+            case COUNTER_CLOCKWISE -> this.shape.rotateCounterClockwise();
+            default -> System.err.println("No action associated with" + action);
         }
-        return isValidPosition(nextPos);
     }
 
-    private boolean isValidPosition(Point position) {
+    public List<Point> getMinos() {
         int size = shape.getSize();
-        boolean[][] pattern = shape.getPattern();
-
-        for (int y = 0; y < size; y++) {
-            for (int x = 0; x < size; x++) {
-                if (pattern[y][x]) {
-                    int worldX = position.x + x;
-                    int worldY = position.y + y;
-
-                    if (matrix.isCellOccupied(worldX, worldY)) {
-                        return false;
-                    }
+        List<Point> minos = new ArrayList<>();
+        for (int x = 0; x < size; x++) {
+            for (int y = 0; y < size; y++) {
+                if (shape.getPattern()[x][y]) {
+                    minos.add(new Point(position.x + x, position.y + y));
                 }
             }
         }
-        return true;
-    }
-
-    public List<Point> getCoordinates() {
-        int size = shape.getSize();
-        List<Point> coordinates = new ArrayList<>();
-        for (int y = 0; y < size; y++) {
-            for (int x = 0; x < size; x++) {
-                if (shape.getPattern()[y][x]) {
-                    coordinates.add(
-                            new Point(coordinate.x + x, coordinate.y + y)
-                    );
-                }
-            }
-        }
-        return coordinates;
+        return minos;
     }
 }

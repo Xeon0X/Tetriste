@@ -13,52 +13,102 @@ public class Matrix extends Observable implements Runnable {
 
     public final int SIZE_X;
     public final int SIZE_Y;
-    private boolean[][] grid;
+    private boolean[][] matrix;
     private Scheduler scheduler;
     private Tetromino activeTetromino;
     private int score;
+    private boolean gameover = false;
 
     @Builder
     public Matrix(int sizeX, int sizeY) {
         this.SIZE_X = sizeX > 0 ? sizeX : 10;
         this.SIZE_Y = sizeY > 0 ? sizeY : 20;
-        this.grid = new boolean[SIZE_X][SIZE_Y];
+        this.matrix = new boolean[SIZE_X][SIZE_Y];
         this.score = 0;
 
-        spawnNewTetromino();
         this.scheduler = new Scheduler(this);
         this.scheduler.start();
-    }
 
-    private void spawnNewTetromino() {
-        this.activeTetromino = new Tetromino.TetrominoBuilder()
-                .matrix(this)
-                .coordinate(new Point(SIZE_X / 2 - 2, 0))
-                .shape(Shape.values()[(int) (Math.random() * Shape.values().length)])
-                .build();
+        spawnNewTetromino();
 
-        if (isGameOver()) {
-            setChanged();
-            notifyObservers("GAME_OVER");
-        }
+        setChanged();
+        notifyObservers();
     }
 
     @Override
     public void run() {
-        if (activeTetromino.canMoveInDirection(Direction.SOFT_DROP)) {
-            activeTetromino.action(Direction.SOFT_DROP);
-        } else {
-            validateTetromino();
-            spawnNewTetromino();
+        try {
+            if (!testAndApplyMoveTetromino(Action.SOFT_DROP)) {
+                validateTetromino();
+                spawnNewTetromino();
+            }
+            setChanged();
+            notifyObservers();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void moveTetromino(Action action) {
+        switch (action) {
+            case HARD_DROP -> {
+                DropResult dropResult = computeLowestCoordinate();
+                this.activeTetromino.setPosition(dropResult.position);
+                updateScore(dropResult.dropDepth * 2);
+                validateTetromino();
+                spawnNewTetromino();
+            }
+            case SOFT_DROP -> {
+                if (testAndApplyMoveTetromino(action)) {
+                    updateScore(1);
+                }
+            }
+            default -> {
+                testAndApplyMoveTetromino(action);
+            }
         }
         setChanged();
         notifyObservers();
     }
 
+    public boolean testAndApplyMoveTetromino(Action action) {
+        Tetromino preview = this.getActiveTetromino().previewAction(action);
+        if (this.isPositionValid(preview)) {
+            this.getActiveTetromino().applyAction(action);
+            return true;
+        }
+        return false;
+    }
+
+    public DropResult computeLowestCoordinate() {
+        Tetromino preview = this.getActiveTetromino().copy();
+        int dropDepth = 0;
+        while (this.isPositionValid(preview.previewAction(Action.SOFT_DROP))) {
+            preview.applyAction(Action.SOFT_DROP);
+            dropDepth++;
+        }
+        return new DropResult(preview.getPosition(), dropDepth);
+    }
+
+    private void spawnNewTetromino() {
+        if (!this.gameover) {
+            this.activeTetromino = new Tetromino.TetrominoBuilder()
+                    .position(new Point(SIZE_X / 2 - 2, 0))
+                    .shape(new Shape(ShapeLetter.values()[(int) (Math.random() * ShapeLetter.values().length)]))
+                    .build();
+        }
+
+        if (!isPositionValid(activeTetromino)) {
+            this.gameover = true;
+            setChanged();
+            notifyObservers("GAME_OVER");
+        }
+    }
+
     private void validateTetromino() {
-        for (Point p : activeTetromino.getCoordinates()) {
+        for (Point p : activeTetromino.getMinos()) {
             if (p.x >= 0 && p.x < SIZE_X && p.y >= 0 && p.y < SIZE_Y) {
-                grid[p.x][p.y] = true;
+                matrix[p.x][p.y] = true;
             }
         }
         checkAndClearLines();
@@ -69,7 +119,7 @@ public class Matrix extends Observable implements Runnable {
         for (int y = SIZE_Y - 1; y >= 0; y--) {
             boolean isLineComplete = true;
             for (int x = 0; x < SIZE_X; x++) {
-                if (!grid[x][y]) {
+                if (!matrix[x][y]) {
                     isLineComplete = false;
                     break;
                 }
@@ -87,7 +137,22 @@ public class Matrix extends Observable implements Runnable {
         }
     }
 
+    private void clearLine(int lineY) {
+        for (int y = lineY; y > 0; y--) {
+            for (int x = 0; x < SIZE_X; x++) {
+                matrix[x][y] = matrix[x][y - 1];
+            }
+        }
+
+        for (int x = 0; x < SIZE_X; x++) {
+            matrix[x][0] = false;
+        }
+        setChanged();
+        notifyObservers();
+    }
+
     private void updateScoreLine(int linesCleared) {
+        System.out.println(score);
         switch (linesCleared) {
             case 1 -> updateScore(100);
             case 2 -> updateScore(300);
@@ -100,56 +165,30 @@ public class Matrix extends Observable implements Runnable {
         this.score += score;
     }
 
-    private void clearLine(int lineY) {
-        for (int y = lineY; y > 0; y--) {
-            for (int x = 0; x < SIZE_X; x++) {
-                grid[x][y] = grid[x][y - 1];
-            }
-        }
-
-        for (int x = 0; x < SIZE_X; x++) {
-            grid[x][0] = false;
-        }
+    public boolean isCellOccupied(Point point) {
+        return matrix[point.x][point.y];
     }
 
-    public void action(Direction direction) {
-        if (direction == Direction.HARD_DROP) {
-            int cells = 0;
-            while (activeTetromino.canMoveInDirection(Direction.SOFT_DROP)) {
-                activeTetromino.action(Direction.SOFT_DROP);
-                cells++;
-            }
-            updateScore(cells * 2);
-            validateTetromino();
-            spawnNewTetromino();
-        } else {
-            activeTetromino.action(direction);
-
-            if (direction == Direction.SOFT_DROP) {
-                scheduler.resetTimer();
-                updateScore(1);
-            }
-        }
-        setChanged();
-        notifyObservers();
+    public boolean isInMatrix(Point point) {
+        return (point.x >= 0 && point.x < SIZE_X && point.y >= 0 && point.y < SIZE_Y);
     }
 
-    public boolean isCellOccupied(int x, int y) {
-        if (x < 0 || x >= SIZE_X || y < 0 || y >= SIZE_Y) {
-            return true;
-        }
-        return grid[x][y];
-    }
-
-    public boolean isGameOver() {
-        for (Point coordinate : activeTetromino.getCoordinates()) {
-            int x = coordinate.x;
-            int y = coordinate.y;
-
-            if (grid[x][y]) {
-                return true;
-            }
+    public boolean isPositionValid(Point point) {
+        if (isInMatrix(point)) {
+            return !isCellOccupied(point);
         }
         return false;
+    }
+
+    public boolean isPositionValid(Tetromino tetromino) {
+        for (Point point : tetromino.getMinos()) {
+            if (!isPositionValid(point)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public record DropResult(Point position, int dropDepth) {
     }
 }

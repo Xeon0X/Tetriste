@@ -1,9 +1,11 @@
 package model;
 
-public enum Direction {
+public enum Action {
     LEFT,
     RIGHT,
     SOFT_DROP,
     HARD_DROP,
     UP,
+    CLOCKWISE,
+    COUNTER_CLOCKWISE,
 }
