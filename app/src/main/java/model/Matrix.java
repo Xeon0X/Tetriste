@@ -53,26 +53,44 @@ public class Matrix extends Observable implements Runnable {
     }
 
     public void moveTetromino(Action action) {
-        if (action == Action.HARD_DROP) {
-            this.activeTetromino.setPosition(computeLowestCoordinate());
-            validateTetromino();
-            spawnNewTetromino();
-        } else {
-            Tetromino preview = this.getActiveTetromino().previewAction(action);
-            if (this.isPositionValid(preview)) {
-                this.getActiveTetromino().applyAction(action);
+        switch (action) {
+            case HARD_DROP -> {
+                DropResult dropResult = computeLowestCoordinate();
+                this.activeTetromino.setPosition(dropResult.position);
+                updateScore(dropResult.dropDepth * 2);
+                validateTetromino();
+                spawnNewTetromino();
+            }
+            case SOFT_DROP -> {
+                if (testAndApplyMoveTetromino(action)) {
+                    updateScore(1);
+                }
+            }
+            default -> {
+                testAndApplyMoveTetromino(action);
             }
         }
         setChanged();
         notifyObservers();
     }
 
-    public Point computeLowestCoordinate() {
+    public boolean testAndApplyMoveTetromino(Action action) {
+        Tetromino preview = this.getActiveTetromino().previewAction(action);
+        if (this.isPositionValid(preview)) {
+            this.getActiveTetromino().applyAction(action);
+            return true;
+        }
+        return false;
+    }
+
+    public DropResult computeLowestCoordinate() {
         Tetromino preview = this.getActiveTetromino().copy();
+        int dropDepth = 0;
         while (this.isPositionValid(preview.previewAction(Action.SOFT_DROP))) {
             preview.applyAction(Action.SOFT_DROP);
+            dropDepth++;
         }
-        return preview.getPosition();
+        return new DropResult(preview.getPosition(), dropDepth);
     }
 
     private void spawnNewTetromino() {
@@ -181,5 +199,8 @@ public class Matrix extends Observable implements Runnable {
             }
         }
         return false;
+    }
+
+    public record DropResult(Point position, int dropDepth) {
     }
 }

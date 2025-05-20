@@ -1,11 +1,12 @@
 package model;
 
-import java.awt.*;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -28,10 +29,10 @@ public class Tetromino {
             case LEFT -> preview.position.x += -1;
             case RIGHT -> preview.position.x += 1;
             case SOFT_DROP -> preview.position.y += 1;
-            // case HARD_DROP -> preview.position.y += matrix.SIZE_Y - position.y - 1;
             case UP -> preview.position.y += -1;
             case CLOCKWISE -> preview.shape.rotateClockwise();
             case COUNTER_CLOCKWISE -> preview.shape.rotateCounterClockwise();
+            default -> System.err.println("No action associated with" + action);
         }
         return preview;
     }
@@ -41,10 +42,10 @@ public class Tetromino {
             case LEFT -> this.position.x += -1;
             case RIGHT -> this.position.x += 1;
             case SOFT_DROP -> this.position.y += 1;
-            // case HARD_DROP -> this.position.y += matrix.SIZE_Y - position.y - 1;
             case UP -> this.position.y += -1;
             case CLOCKWISE -> this.shape.rotateClockwise();
             case COUNTER_CLOCKWISE -> this.shape.rotateCounterClockwise();
+            default -> System.err.println("No action associated with" + action);
         }
     }
 
