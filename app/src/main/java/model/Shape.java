@@ -26,42 +26,41 @@ public class Shape {
     public Shape(ShapeLetter letter) {
         switch (letter) {
             case I -> {
-                pattern = new boolean[][] {
-                    { false, false, false, false },
-                    { true, true, true, true },
-                    { false, false, false, false },
-                    { false, false, false, false },
+                pattern = new boolean[][]{
+                        {false, false, false, false},
+                        {true, true, true, true},
+                        {false, false, false, false},
+                        {false, false, false, false},
                 };
                 size = 4;
                 this.letter = ShapeLetter.I;
             }
             case O -> {
-                pattern = new boolean[][] {
-                    { false, false, false, false },
-                    { false, true, true, false },
-                    { false, true, true, false },
-                    { false, false, false, false },
+                pattern = new boolean[][]{
+                        {false, false, false, false},
+                        {false, true, true, false},
+                        {false, true, true, false},
+                        {false, false, false, false},
                 };
                 size = 4;
                 this.letter = ShapeLetter.O;
             }
             case T -> {
-                pattern = new boolean[][] {
-                    { false, false, true, false },
-                    { false, true, true, true },
-                    { false, false, false, false },
-                    { false, false, false, false },
+                pattern = new boolean[][]{
+                        {false, true, false},
+                        {true, true, true},
+                        {false, false, false},
                 };
-                size = 4;
+                size = 3;
                 this.letter = ShapeLetter.T;
             }
             case L -> {
-                pattern = new boolean[][] { { false, false, true }, { true, true, true }, { false, false, false } };
+                pattern = new boolean[][]{{false, false, true}, {true, true, true}, {false, false, false}};
                 size = 3;
                 this.letter = ShapeLetter.L;
             }
             case J -> {
-                pattern = new boolean[][] { { true, false, false }, { true, true, true }, { false, false, false } };
+                pattern = new boolean[][]{{true, false, false}, {true, true, true}, {false, false, false}};
                 size = 3;
                 this.letter = ShapeLetter.J;
             }

@@ -1,10 +1,11 @@
 package model;
 
-import java.awt.*;
-import java.util.Observable;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.awt.*;
+import java.util.Observable;
 
 @Getter
 @Setter
@@ -35,7 +36,6 @@ public class Matrix extends Observable implements Runnable {
 
     @Override
     public void run() {
-        System.out.println("gravity");
         try {
             // Gravity
             Tetromino preview = this.getActiveTetromino().previewAction(Action.SOFT_DROP);
@@ -53,19 +53,33 @@ public class Matrix extends Observable implements Runnable {
     }
 
     public void moveTetromino(Action action) {
-        Tetromino preview = this.getActiveTetromino().previewAction(action);
-        if (this.isPositionValid(preview)) {
-            this.getActiveTetromino().applyAction(action);
+        if (action == Action.HARD_DROP) {
+            this.activeTetromino.setPosition(computeLowestCoordinate());
+            validateTetromino();
+            spawnNewTetromino();
+        } else {
+            Tetromino preview = this.getActiveTetromino().previewAction(action);
+            if (this.isPositionValid(preview)) {
+                this.getActiveTetromino().applyAction(action);
+            }
         }
         setChanged();
         notifyObservers();
     }
 
+    public Point computeLowestCoordinate() {
+        Tetromino preview = this.getActiveTetromino().copy();
+        while (this.isPositionValid(preview.previewAction(Action.SOFT_DROP))) {
+            preview.applyAction(Action.SOFT_DROP);
+        }
+        return preview.getPosition();
+    }
+
     private void spawnNewTetromino() {
         this.activeTetromino = new Tetromino.TetrominoBuilder()
-            .position(new Point(SIZE_X / 2 - 2, 0))
-            .shape(new Shape(ShapeLetter.values()[(int) (Math.random() * ShapeLetter.values().length)]))
-            .build();
+                .position(new Point(SIZE_X / 2 - 2, 0))
+                .shape(new Shape(ShapeLetter.values()[(int) (Math.random() * ShapeLetter.values().length)]))
+                .build();
 
         if (isGameOver()) {
             setChanged();
@@ -120,6 +134,7 @@ public class Matrix extends Observable implements Runnable {
     }
 
     private void updateScoreLine(int linesCleared) {
+        System.out.println(score);
         switch (linesCleared) {
             case 1 -> updateScore(100);
             case 2 -> updateScore(300);
@@ -133,7 +148,6 @@ public class Matrix extends Observable implements Runnable {
     }
 
     public boolean isCellOccupied(Point point) {
-        System.out.println(point);
         return matrix[point.x][point.y];
     }
 
