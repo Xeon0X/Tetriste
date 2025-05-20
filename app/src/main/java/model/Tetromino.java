@@ -52,9 +52,9 @@ public class Tetromino {
     public List<Point> getMinos() {
         int size = shape.getSize();
         List<Point> minos = new ArrayList<>();
-        for (int y = 0; y < size; y++) {
-            for (int x = 0; x < size; x++) {
-                if (shape.getPattern()[y][x]) {
+        for (int x = 0; x < size; x++) {
+            for (int y = 0; y < size; y++) {
+                if (shape.getPattern()[x][y]) {
                     minos.add(new Point(position.x + x, position.y + y));
                 }
             }

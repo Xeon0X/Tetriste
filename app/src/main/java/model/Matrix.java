@@ -17,6 +17,7 @@ public class Matrix extends Observable implements Runnable {
     private Scheduler scheduler;
     private Tetromino activeTetromino;
     private int score;
+    private boolean gameover = false;
 
     @Builder
     public Matrix(int sizeX, int sizeY) {
@@ -37,11 +38,7 @@ public class Matrix extends Observable implements Runnable {
     @Override
     public void run() {
         try {
-            // Gravity
-            Tetromino preview = this.getActiveTetromino().previewAction(Action.SOFT_DROP);
-            if (this.isPositionValid(preview)) {
-                this.getActiveTetromino().applyAction(Action.SOFT_DROP);
-            } else {
+            if (!testAndApplyMoveTetromino(Action.SOFT_DROP)) {
                 validateTetromino();
                 spawnNewTetromino();
             }
@@ -94,12 +91,15 @@ public class Matrix extends Observable implements Runnable {
     }
 
     private void spawnNewTetromino() {
-        this.activeTetromino = new Tetromino.TetrominoBuilder()
-                .position(new Point(SIZE_X / 2 - 2, 0))
-                .shape(new Shape(ShapeLetter.values()[(int) (Math.random() * ShapeLetter.values().length)]))
-                .build();
+        if (!this.gameover) {
+            this.activeTetromino = new Tetromino.TetrominoBuilder()
+                    .position(new Point(SIZE_X / 2 - 2, 0))
+                    .shape(new Shape(ShapeLetter.values()[(int) (Math.random() * ShapeLetter.values().length)]))
+                    .build();
+        }
 
-        if (isGameOver()) {
+        if (!isPositionValid(activeTetromino)) {
+            this.gameover = true;
             setChanged();
             notifyObservers("GAME_OVER");
         }
@@ -187,18 +187,6 @@ public class Matrix extends Observable implements Runnable {
             }
         }
         return true;
-    }
-
-    public boolean isGameOver() {
-        for (Point coordinate : activeTetromino.getMinos()) {
-            int x = coordinate.x;
-            int y = coordinate.y;
-
-            if (matrix[x][y]) {
-                return true;
-            }
-        }
-        return false;
     }
 
     public record DropResult(Point position, int dropDepth) {
