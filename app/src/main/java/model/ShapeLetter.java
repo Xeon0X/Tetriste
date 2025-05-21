@@ -6,4 +6,6 @@ public enum ShapeLetter {
     T,
     L,
     J,
+    S,
+    Z
 }

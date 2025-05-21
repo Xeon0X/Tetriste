@@ -1,36 +1,35 @@
 package view;
 
 import controller.MatrixController;
-import model.Matrix;
-
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.util.Observable;
 import java.util.Observer;
+import javax.swing.*;
+import model.Matrix;
 
 public class MatrixView extends JPanel implements Observer {
+
     private static final float BASE_SCORE_FONT_SIZE = 16f;
     private static final int WIDTH = 400;
     private static final int HEIGHT = 600;
     private final Matrix matrix;
     private final Color[] colors = {
-            Color.CYAN,
-            Color.BLUE,
-            Color.ORANGE,
-            Color.YELLOW,
-            Color.GREEN,
-            Color.MAGENTA,
-            Color.RED,
+        Color.CYAN,
+        Color.BLUE,
+        Color.ORANGE,
+        Color.YELLOW,
+        Color.GREEN,
+        Color.MAGENTA,
+        Color.RED,
     };
-    private final MatrixController controller;
+
     private final JTextField textField = new JTextField("");
     private int cellSize;
 
-    public MatrixView(Matrix matrix, MatrixController controller) {
+    public MatrixView(Matrix matrix) {
         this.matrix = matrix;
-        this.controller = controller;
 
         setBackground(Color.WHITE);
         calculateCellSize();
@@ -52,12 +51,14 @@ public class MatrixView extends JPanel implements Observer {
 
         frame.setContentPane(panel);
         frame.setResizable(true);
-        frame.addComponentListener(new ComponentAdapter() {
-            @Override
-            public void componentResized(ComponentEvent e) {
-                repaint();
+        frame.addComponentListener(
+            new ComponentAdapter() {
+                @Override
+                public void componentResized(ComponentEvent e) {
+                    repaint();
+                }
             }
-        });
+        );
 
         frame.setVisible(true);
     }
