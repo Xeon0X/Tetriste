@@ -1,12 +1,11 @@
 package model;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
-
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter
@@ -23,21 +22,21 @@ public class Tetromino {
     }
 
     public Tetromino precompute(Action action) {
-        Tetromino preview = this.copy();
+        Tetromino precompute = this.copy();
 
         switch (action) {
-            case LEFT -> preview.position.x += -1;
-            case RIGHT -> preview.position.x += 1;
-            case SOFT_DROP -> preview.position.y += 1;
-            case UP -> preview.position.y += -1;
-            case CLOCKWISE -> preview.shape.rotateClockwise();
-            case COUNTER_CLOCKWISE -> preview.shape.rotateCounterClockwise();
+            case LEFT -> precompute.position.x += -1;
+            case RIGHT -> precompute.position.x += 1;
+            case SOFT_DROP -> precompute.position.y += 1;
+            case UP -> precompute.position.y += -1;
+            case CLOCKWISE -> precompute.shape.rotateClockwise();
+            case COUNTER_CLOCKWISE -> precompute.shape.rotateCounterClockwise();
             default -> System.err.println("No action associated with" + action);
         }
-        return preview;
+        return precompute;
     }
 
-    public void applyAction(Action action) {
+    public Tetromino applyAction(Action action) {
         switch (action) {
             case LEFT -> this.position.x += -1;
             case RIGHT -> this.position.x += 1;
@@ -47,6 +46,7 @@ public class Tetromino {
             case COUNTER_CLOCKWISE -> this.shape.rotateCounterClockwise();
             default -> System.err.println("No action associated with" + action);
         }
+        return this;
     }
 
     public List<Point> getMinos() {

@@ -85,12 +85,44 @@ public class Matrix extends Observable implements Runnable {
     }
 
     public boolean testAndApplyMoveTetromino(Action action) {
-        Tetromino precompute = this.getActiveTetromino().precompute(action);
-        if (this.isPositionValid(precompute)) {
+        if (this.isPositionValid(this.getActiveTetromino().precompute(action))) {
             this.getActiveTetromino().applyAction(action);
             return true;
+        } else if ((action == Action.COUNTER_CLOCKWISE) || (action == Action.CLOCKWISE)) {
+            if (this.isPositionValid(this.getActiveTetromino().precompute(action).precompute(Action.LEFT))) {
+                this.getActiveTetromino().applyAction(action).applyAction(Action.LEFT);
+                return true;
+            }
+            if (this.isPositionValid(this.getActiveTetromino().precompute(action).precompute(Action.RIGHT))) {
+                this.getActiveTetromino().applyAction(action).applyAction(Action.RIGHT);
+                return true;
+            }
+            // Shape I
+            if (this.getActiveTetromino().getShape().getSize() == 4) {
+                if (
+                    this.isPositionValid(
+                            this.getActiveTetromino().precompute(action).precompute(Action.LEFT).precompute(Action.LEFT)
+                        )
+                ) {
+                    this.getActiveTetromino().applyAction(action).applyAction(Action.LEFT).applyAction(Action.LEFT);
+                    return true;
+                }
+                if (
+                    this.isPositionValid(
+                            this.getActiveTetromino()
+                                .precompute(action)
+                                .precompute(Action.RIGHT)
+                                .precompute(Action.RIGHT)
+                        )
+                ) {
+                    this.getActiveTetromino().applyAction(action).applyAction(Action.RIGHT).applyAction(Action.RIGHT);
+                    return true;
+                }
+            }
+            return false;
+        } else {
+            return false;
         }
-        return false;
     }
 
     public DropResult computeLowestCoordinate() {

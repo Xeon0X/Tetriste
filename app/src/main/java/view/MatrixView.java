@@ -128,6 +128,22 @@ public class MatrixView extends JPanel implements Observer {
             }
         }
 
+        // Area of the tetromino
+        if (matrix.getActiveTetromino() != null) {
+            g.setColor(colors[matrix.getActiveTetromino().getShape().getLetter().ordinal() % colors.length]);
+            Point start = matrix.getActiveTetromino().getPosition();
+            int size = matrix.getActiveTetromino().getShape().getSize();
+
+            g.setColor(Color.BLACK);
+            g.fillRect(startX + start.x * cellSize, startY + start.y * cellSize, size * cellSize, size * cellSize);
+            g.fillRect(
+                startX + start.x * cellSize + 1,
+                startY + start.y * cellSize + 1,
+                size * cellSize - 1,
+                size * cellSize - 1
+            );
+        }
+
         if (matrix.getPreviewTetromino() != null) {
             g.setColor(colors[matrix.getPreviewTetromino().getShape().getLetter().ordinal() % colors.length]);
             for (Point p : matrix.getPreviewTetromino().getMinos()) {
