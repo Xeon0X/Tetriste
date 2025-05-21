@@ -3,6 +3,7 @@ package controller;
 import java.awt.event.ActionListener;
 import javax.swing.*;
 import model.Matrix;
+import model.PreconfigMatrix;
 import view.HomeView;
 import view.MatrixView;
 
@@ -61,7 +62,11 @@ public class HomeController extends JFrame {
                     default -> 24;
                 };
 
-            Matrix currentMatrix = Matrix.builder().sizeX(sizeX).sizeY(sizeY).build();
+            Matrix currentMatrix = Matrix.builder()
+                .sizeX(sizeX)
+                .sizeY(sizeY)
+                .matrix(PreconfigMatrix.emptyLineLeft(sizeX, sizeY))
+                .build();
             MatrixController matrixController = new MatrixController(currentMatrix);
             MatrixView matrixView = new MatrixView(currentMatrix);
         });

@@ -1,11 +1,10 @@
 package model;
 
+import java.awt.*;
+import java.util.Observable;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.awt.*;
-import java.util.Observable;
 
 @Getter
 @Setter
@@ -21,10 +20,16 @@ public class Matrix extends Observable implements Runnable {
     private boolean gameover = false;
 
     @Builder
-    public Matrix(int sizeX, int sizeY) {
+    public Matrix(int sizeX, int sizeY, boolean[][] matrix) {
         this.SIZE_X = sizeX > 0 ? sizeX : 10;
         this.SIZE_Y = sizeY > 0 ? sizeY : 20;
         this.matrix = new boolean[SIZE_X][SIZE_Y];
+        for (int x = 0; x < SIZE_X; x++) {
+            for (int y = 0; y < SIZE_Y; y++) {
+                System.out.println("x: " + x + " y: " + y + " value: " + matrix[x][y]);
+                this.matrix[x][y] = matrix[x][y];
+            }
+        }
         this.score = 0;
 
         this.scheduler = new Scheduler(this);
@@ -101,9 +106,9 @@ public class Matrix extends Observable implements Runnable {
     private void spawnNewTetromino() {
         if (!this.gameover) {
             this.activeTetromino = new Tetromino.TetrominoBuilder()
-                    .position(new Point(SIZE_X / 2 - 2, 0))
-                    .shape(new Shape(ShapeLetter.values()[(int) (Math.random() * ShapeLetter.values().length)]))
-                    .build();
+                .position(new Point(SIZE_X / 2 - 2, 0))
+                .shape(new Shape(ShapeLetter.values()[(int) (Math.random() * ShapeLetter.values().length)]))
+                .build();
             this.previewTetromino = activeTetromino.copy();
             updatePreview();
         }
@@ -199,6 +204,5 @@ public class Matrix extends Observable implements Runnable {
         return true;
     }
 
-    public record DropResult(Point position, int dropDepth) {
-    }
+    public record DropResult(Point position, int dropDepth) {}
 }
