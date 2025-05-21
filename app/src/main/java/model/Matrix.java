@@ -16,6 +16,7 @@ public class Matrix extends Observable implements Runnable {
     private boolean[][] matrix;
     private Scheduler scheduler;
     private Tetromino activeTetromino;
+    private Tetromino previewTetromino;
     private int score;
     private boolean gameover = false;
 
@@ -49,6 +50,12 @@ public class Matrix extends Observable implements Runnable {
         }
     }
 
+    public void updatePreview() {
+        previewTetromino.setPosition(activeTetromino.getPosition());
+        previewTetromino.setShape(activeTetromino.getShape());
+        previewTetromino.setPosition(computeLowestCoordinate().position);
+    }
+
     public void moveTetromino(Action action) {
         switch (action) {
             case HARD_DROP -> {
@@ -67,13 +74,14 @@ public class Matrix extends Observable implements Runnable {
                 testAndApplyMoveTetromino(action);
             }
         }
+        updatePreview();
         setChanged();
         notifyObservers();
     }
 
     public boolean testAndApplyMoveTetromino(Action action) {
-        Tetromino preview = this.getActiveTetromino().previewAction(action);
-        if (this.isPositionValid(preview)) {
+        Tetromino precompute = this.getActiveTetromino().precompute(action);
+        if (this.isPositionValid(precompute)) {
             this.getActiveTetromino().applyAction(action);
             return true;
         }
@@ -81,13 +89,13 @@ public class Matrix extends Observable implements Runnable {
     }
 
     public DropResult computeLowestCoordinate() {
-        Tetromino preview = this.getActiveTetromino().copy();
+        Tetromino precompute = this.getActiveTetromino().copy();
         int dropDepth = 0;
-        while (this.isPositionValid(preview.previewAction(Action.SOFT_DROP))) {
-            preview.applyAction(Action.SOFT_DROP);
+        while (this.isPositionValid(precompute.precompute(Action.SOFT_DROP))) {
+            precompute.applyAction(Action.SOFT_DROP);
             dropDepth++;
         }
-        return new DropResult(preview.getPosition(), dropDepth);
+        return new DropResult(precompute.getPosition(), dropDepth);
     }
 
     private void spawnNewTetromino() {
@@ -96,6 +104,8 @@ public class Matrix extends Observable implements Runnable {
                     .position(new Point(SIZE_X / 2 - 2, 0))
                     .shape(new Shape(ShapeLetter.values()[(int) (Math.random() * ShapeLetter.values().length)]))
                     .build();
+            this.previewTetromino = activeTetromino.copy();
+            updatePreview();
         }
 
         if (!isPositionValid(activeTetromino)) {

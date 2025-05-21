@@ -22,7 +22,7 @@ public class Tetromino {
         return new Tetromino.TetrominoBuilder().position(new Point(position)).shape(new Shape(shape)).build();
     }
 
-    public Tetromino previewAction(Action action) {
+    public Tetromino precompute(Action action) {
         Tetromino preview = this.copy();
 
         switch (action) {
