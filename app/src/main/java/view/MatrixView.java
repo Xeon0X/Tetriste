@@ -123,12 +123,23 @@ public class MatrixView extends JPanel implements Observer {
         g.setColor(Color.BLACK);
         g.setFont(new Font("Arial", Font.BOLD, fontSize));
 
-        int scoreX = 10;
-        int scoreY1 = Math.max(30, startY / 2);
-        int scoreY2 = scoreY1 + fontSize + 5;
+        int baseX = 10;
+        int spacingY = fontSize + 8;
+        int labelX = baseX;
+        int valueX = baseX + 60;
 
-        g.drawString("SCORE:", scoreX, scoreY1);
-        g.drawString(String.valueOf(matrix.getScore()), scoreX, scoreY2);
+        int startY2 = Math.max(30, startY / 2);
+        int horzontalSpacing = 30;
+
+        g.drawString("Score:", labelX, startY2);
+        g.drawString(String.valueOf(matrix.getScore()), valueX + horzontalSpacing, startY2);
+
+        g.drawString("Level:", labelX, startY2 + spacingY);
+        g.drawString(String.valueOf(matrix.getLevel()), valueX + horzontalSpacing, startY2 + spacingY);
+
+        g.drawString("Lines:", labelX, startY2 + 2 * spacingY);
+        g.drawString(String.valueOf(matrix.getLinesCleared()), valueX + horzontalSpacing, startY2 + 2 * spacingY);
+
 
         g.setColor(Color.LIGHT_GRAY);
         for (int x = 0; x <= matrix.SIZE_X; x++) {

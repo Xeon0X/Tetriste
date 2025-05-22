@@ -18,6 +18,8 @@ public class Matrix extends Observable implements Runnable {
     private Tetromino activeTetromino;
     private Tetromino previewTetromino;
     private int score;
+    private int level;
+    private int linesCleared = 0;
     private boolean gameover = false;
 
     @Builder
@@ -193,17 +195,30 @@ public class Matrix extends Observable implements Runnable {
         for (int x = 0; x < SIZE_X; x++) {
             matrix[x][0] = false;
         }
+        this.linesCleared += 1;
+        updateLevel();
         setChanged();
         notifyObservers();
     }
 
     private void updateScoreLine(int linesCleared) {
-        System.out.println(score);
+        // System.out.println(score);
         switch (linesCleared) {
             case 1 -> updateScore(100);
             case 2 -> updateScore(300);
             case 3 -> updateScore(500);
             case 4 -> updateScore(800);
+        }
+    }
+
+    private void updateLevel() {
+        if (this.linesCleared >= this.level) {
+            this.linesCleared = 0;
+            this.level += 1;
+            double intervalSec = Math.max(0.016, 1 - (this.level * 0.2));
+            this.scheduler.interval = (long) (intervalSec * 1000);
+            setChanged();
+            notifyObservers();
         }
     }
 

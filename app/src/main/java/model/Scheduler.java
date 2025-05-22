@@ -21,10 +21,8 @@ public class Scheduler extends Thread {
         while (running) {
             try {
                 long currentTime = System.currentTimeMillis();
-                long timeElapsed = currentTime - lastResetTime;
-                long sleepTime = Math.max(10, interval - timeElapsed);
 
-                Thread.sleep(sleepTime);
+                Thread.sleep(interval);
 
                 currentTime = System.currentTimeMillis();
                 if (currentTime - lastResetTime >= interval) {
