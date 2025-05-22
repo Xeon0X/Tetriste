@@ -20,8 +20,8 @@ public class Matrix extends Observable implements Runnable {
     private Tetromino activeTetromino;
     private Tetromino nextTetromino;
     private Tetromino previewTetromino;
-    private int score;
-    private int level;
+    private int score = 0;
+    private int level = 0;
     private int linesCleared = 0;
     private boolean gameover = false;
     private AtomicBoolean paused = new AtomicBoolean(false);
