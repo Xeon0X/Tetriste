@@ -16,6 +16,7 @@ public class Matrix extends Observable implements Runnable {
     private boolean[][] matrix;
     private Scheduler scheduler;
     private Tetromino activeTetromino;
+    private Tetromino nextTetromino;
     private Tetromino previewTetromino;
     private int score;
     private int level;
@@ -36,6 +37,11 @@ public class Matrix extends Observable implements Runnable {
         this.scheduler = new Scheduler(this);
         this.scheduler.start();
 
+        this.nextTetromino = new Tetromino.TetrominoBuilder()
+                .position(new Point(SIZE_X + 4, 0))
+                .shape(new Shape(ShapeLetter.values()[(int) (Math.random() * ShapeLetter.values().length)]))
+                .build();
+
         spawnNewTetromino();
 
         setChanged();
@@ -47,7 +53,7 @@ public class Matrix extends Observable implements Runnable {
         if (gameover) {
             return;
         }
-        
+
         try {
             if (!testAndApplyMoveTetromino(Action.SOFT_DROP)) {
                 validateTetromino();
@@ -144,6 +150,10 @@ public class Matrix extends Observable implements Runnable {
         if (!this.gameover) {
             this.activeTetromino = new Tetromino.TetrominoBuilder()
                     .position(new Point(SIZE_X / 2 - 2, 0))
+                    .shape(new Shape(nextTetromino.getShape()))
+                    .build();
+            this.nextTetromino = new Tetromino.TetrominoBuilder()
+                    .position(new Point(SIZE_X + 4, 0))
                     .shape(new Shape(ShapeLetter.values()[(int) (Math.random() * ShapeLetter.values().length)]))
                     .build();
             this.previewTetromino = activeTetromino.copy();

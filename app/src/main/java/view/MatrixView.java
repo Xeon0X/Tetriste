@@ -127,7 +127,7 @@ public class MatrixView extends JPanel implements Observer {
         int valueX = baseX + 60;
 
         int startY2 = Math.max(30, startY / 2);
-        int horzontalSpacing = 30;
+        int horzontalSpacing = 10;
 
         g.drawString("Score:", labelX, startY2);
         g.drawString(String.valueOf(matrix.getScore()), valueX + horzontalSpacing, startY2);
@@ -169,6 +169,13 @@ public class MatrixView extends JPanel implements Observer {
         if (matrix.getActiveTetromino() != null) {
             g.setColor(colors[matrix.getActiveTetromino().getShape().getLetter().ordinal() % colors.length]);
             for (Point p : matrix.getActiveTetromino().getMinos()) {
+                g.fillRect(startX + p.x * cellSize + 1, startY + p.y * cellSize + 1, cellSize - 1, cellSize - 1);
+            }
+        }
+
+        if (matrix.getNextTetromino() != null) {
+            g.setColor(colors[matrix.getNextTetromino().getShape().getLetter().ordinal() % colors.length]);
+            for (Point p : matrix.getNextTetromino().getMinos()) {
                 g.fillRect(startX + p.x * cellSize + 1, startY + p.y * cellSize + 1, cellSize - 1, cellSize - 1);
             }
         }
