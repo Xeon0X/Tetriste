@@ -29,13 +29,12 @@ public class HomeController {
             default -> 24;
         };
 
-            Matrix currentMatrix = Matrix.builder()
+        Matrix currentMatrix = Matrix.builder()
                 .sizeX(sizeX)
                 .sizeY(sizeY)
                 .matrix(PreconfigMatrix.emptyLineLeft(sizeX, sizeY))
                 .build();
-            MatrixController matrixController = new MatrixController(currentMatrix);
-            MatrixView matrixView = new MatrixView(currentMatrix);
-        });
+        MatrixController matrixController = new MatrixController(currentMatrix);
+        MatrixView matrixView = new MatrixView(currentMatrix, matrixController);
     }
 }

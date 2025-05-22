@@ -1,10 +1,11 @@
 package model;
 
-import java.awt.*;
-import java.util.Observable;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.awt.*;
+import java.util.Observable;
 
 @Getter
 @Setter
@@ -25,10 +26,8 @@ public class Matrix extends Observable implements Runnable {
         this.SIZE_Y = sizeY > 0 ? sizeY : 20;
         this.matrix = new boolean[SIZE_X][SIZE_Y];
         for (int x = 0; x < SIZE_X; x++) {
-            for (int y = 0; y < SIZE_Y; y++) {
-                System.out.println("x: " + x + " y: " + y + " value: " + matrix[x][y]);
-                this.matrix[x][y] = matrix[x][y];
-            }
+            // System.out.println("x: " + x + " y: " + y + " value: " + matrix[x][y]);
+            System.arraycopy(matrix[x], 0, this.matrix[x], 0, SIZE_Y);
         }
         this.score = 0;
 
@@ -100,19 +99,19 @@ public class Matrix extends Observable implements Runnable {
             // Shape I
             if (this.getActiveTetromino().getShape().getSize() == 4) {
                 if (
-                    this.isPositionValid(
-                            this.getActiveTetromino().precompute(action).precompute(Action.LEFT).precompute(Action.LEFT)
+                        this.isPositionValid(
+                                this.getActiveTetromino().precompute(action).precompute(Action.LEFT).precompute(Action.LEFT)
                         )
                 ) {
                     this.getActiveTetromino().applyAction(action).applyAction(Action.LEFT).applyAction(Action.LEFT);
                     return true;
                 }
                 if (
-                    this.isPositionValid(
-                            this.getActiveTetromino()
-                                .precompute(action)
-                                .precompute(Action.RIGHT)
-                                .precompute(Action.RIGHT)
+                        this.isPositionValid(
+                                this.getActiveTetromino()
+                                        .precompute(action)
+                                        .precompute(Action.RIGHT)
+                                        .precompute(Action.RIGHT)
                         )
                 ) {
                     this.getActiveTetromino().applyAction(action).applyAction(Action.RIGHT).applyAction(Action.RIGHT);
@@ -138,9 +137,9 @@ public class Matrix extends Observable implements Runnable {
     private void spawnNewTetromino() {
         if (!this.gameover) {
             this.activeTetromino = new Tetromino.TetrominoBuilder()
-                .position(new Point(SIZE_X / 2 - 2, 0))
-                .shape(new Shape(ShapeLetter.values()[(int) (Math.random() * ShapeLetter.values().length)]))
-                .build();
+                    .position(new Point(SIZE_X / 2 - 2, 0))
+                    .shape(new Shape(ShapeLetter.values()[(int) (Math.random() * ShapeLetter.values().length)]))
+                    .build();
             this.previewTetromino = activeTetromino.copy();
             updatePreview();
         }
@@ -236,5 +235,6 @@ public class Matrix extends Observable implements Runnable {
         return true;
     }
 
-    public record DropResult(Point position, int dropDepth) {}
+    public record DropResult(Point position, int dropDepth) {
+    }
 }
