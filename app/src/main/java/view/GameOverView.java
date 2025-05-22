@@ -1,10 +1,8 @@
 package view;
 
-import controller.GameOverController;
-import lombok.Getter;
-
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 
@@ -16,18 +14,14 @@ public class GameOverView extends JPanel {
     private static final int WIDTH = 500;
     private static final int HEIGHT = 400;
 
-    private final GameOverController gameOverController;
     private JLabel titleLabel;
     private JLabel scoreLabel;
-    @Getter
     private JButton homeButton;
+    private JFrame frame;
 
-    public GameOverView(GameOverController gameOverController, int score) {
-        this.gameOverController = gameOverController;
-        gameOverController.setView(this);
+    public GameOverView(int score) {
         setLayout(new BorderLayout());
-
-        this.paintComponent(score);
+        initializeComponents(score);
 
         addComponentListener(new ComponentAdapter() {
             @Override
@@ -36,7 +30,38 @@ public class GameOverView extends JPanel {
             }
         });
 
-        this.setupWindow();
+        setupWindow();
+    }
+
+    private void initializeComponents(int score) {
+        JPanel titlePanel = new JPanel();
+        titlePanel.setBorder(BorderFactory.createEmptyBorder(30, 0, 0, 0));
+
+        titleLabel = new JLabel("Game Over");
+        titleLabel.setFont(new Font("Arial", Font.BOLD, (int) BASE_TITLE_SIZE));
+        titlePanel.add(titleLabel);
+        add(titlePanel, BorderLayout.NORTH);
+
+        JPanel scorePanel = new JPanel();
+        scorePanel.setBorder(BorderFactory.createEmptyBorder(30, 0, 0, 0));
+        scoreLabel = new JLabel("Your Score: " + score);
+        scoreLabel.setFont(new Font("Arial", Font.PLAIN, (int) BASE_SCORE_SIZE));
+        scorePanel.add(scoreLabel);
+        add(scorePanel, BorderLayout.CENTER);
+
+        JPanel homePanel = new JPanel(new GridLayout());
+        homePanel.setBorder(BorderFactory.createEmptyBorder(50, 100, 50, 100));
+
+        homeButton = new JButton("Home");
+        homeButton.setFont(new Font("Arial", Font.PLAIN, (int) BASE_BUTTON_SIZE));
+        homeButton.setPreferredSize(new Dimension(100, 100));
+
+        homePanel.add(homeButton);
+        add(homePanel, BorderLayout.SOUTH);
+    }
+
+    public void setHomeButtonListener(ActionListener listener) {
+        homeButton.addActionListener(listener);
     }
 
     private void updateFonts() {
@@ -60,47 +85,22 @@ public class GameOverView extends JPanel {
         revalidate();
     }
 
-    private void paintComponent(int score) {
-        JPanel titlePanel = new JPanel();
-        titlePanel.setBorder(BorderFactory.createEmptyBorder(30, 0, 0, 0));
-
-        titleLabel = new JLabel("Game Over");
-        titleLabel.setFont(new Font("Arial", Font.BOLD, (int) BASE_TITLE_SIZE));
-        titlePanel.add(titleLabel);
-        add(titlePanel, BorderLayout.NORTH);
-
-        JPanel scorePanel = new JPanel();
-        scorePanel.setBorder(BorderFactory.createEmptyBorder(30, 0, 0, 0));
-        scoreLabel = new JLabel("Your Score: " + score);
-        scoreLabel.setFont(new Font("Arial", Font.PLAIN, (int) BASE_SCORE_SIZE));
-        scorePanel.add(scoreLabel);
-        add(scorePanel, BorderLayout.CENTER);
-
-        JPanel homePanel = new JPanel(new GridLayout());
-        homePanel.setBorder(BorderFactory.createEmptyBorder(50, 100, 50, 100));
-
-        homeButton = new JButton("Home");
-        homeButton.setFont(new Font("Arial", Font.PLAIN, (int) BASE_BUTTON_SIZE));
-        homeButton.setPreferredSize(new Dimension(100, 100));
-        homeButton.addActionListener(e -> {
-            gameOverController.returnHome();
-        });
-
-        homePanel.add(homeButton);
-        add(homePanel, BorderLayout.SOUTH);
-    }
-
     private void setupWindow() {
-        JFrame frame = new JFrame("Matrix Game");
-        frame.setTitle("Game Over");
+        frame = new JFrame("Game Over");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(500, 400);
+        frame.setSize(WIDTH, HEIGHT);
         frame.setLocationRelativeTo(null);
         frame.setContentPane(this);
+        frame.setVisible(true);
+    }
+
+    public void display() {
+        if (frame != null) {
+            frame.setVisible(true);
+        }
     }
 
     public void close() {
-        JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(this);
         if (frame != null) {
             frame.dispose();
         }

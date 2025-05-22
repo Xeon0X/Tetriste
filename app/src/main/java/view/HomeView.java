@@ -1,7 +1,5 @@
 package view;
 
-import controller.HomeController;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
@@ -14,23 +12,18 @@ public class HomeView extends JFrame {
     private static final int WIDTH = 500;
     private static final int HEIGHT = 400;
 
-    private final HomeController controller;
     private JButton easyButton;
     private JButton mediumButton;
     private JButton hardButton;
     private JLabel titleLabel;
 
-    public HomeView(HomeController controller) {
-        this.controller = controller;
-
+    public HomeView() {
         setTitle("Tetriste");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(WIDTH, HEIGHT);
         setLocationRelativeTo(null);
 
         setupUI();
-
-        setupListeners();
     }
 
     private void setupUI() {
@@ -60,25 +53,6 @@ public class HomeView extends JFrame {
                 updateFonts();
             }
         });
-    }
-
-    private void setupListeners() {
-        ActionListener difficultyListener = e -> {
-            JButton source = (JButton) e.getSource();
-
-            int difficulty;
-            if (source == easyButton) {
-                difficulty = 0;
-            } else if (source == mediumButton) {
-                difficulty = 1;
-            } else {
-                difficulty = 2;
-            }
-
-            controller.startGame(difficulty);
-        };
-
-        setDifficultyActionListener(difficultyListener);
     }
 
     private void updateFonts() {
