@@ -23,12 +23,7 @@ public class Scheduler extends Thread {
                 long currentTime = System.currentTimeMillis();
 
                 Thread.sleep(interval);
-
-                currentTime = System.currentTimeMillis();
-                if (currentTime - lastResetTime >= interval) {
-                    runnable.run();
-                    lastResetTime = currentTime;
-                }
+                runnable.run();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

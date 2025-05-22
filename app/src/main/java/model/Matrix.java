@@ -212,8 +212,8 @@ public class Matrix extends Observable implements Runnable {
     }
 
     private void updateLevel() {
-        if (this.linesCleared >= this.level) {
-            this.linesCleared = 0;
+        while (this.linesCleared > this.level) {
+            this.linesCleared -= this.level;
             this.level += 1;
             double intervalSec = Math.max(0.016, 1 - (this.level * 0.2));
             this.scheduler.interval = (long) (intervalSec * 1000);

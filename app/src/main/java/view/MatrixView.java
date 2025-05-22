@@ -181,7 +181,7 @@ public class MatrixView extends JPanel implements Observer {
             g.setColor(colors[matrix.getActiveTetromino().getShape().getLetter().ordinal() % colors.length]);
             Point start = matrix.getActiveTetromino().getPosition();
             int size = matrix.getActiveTetromino().getShape().getSize();
-            g.setColor(Color.WHITE);
+            g.setColor(Color.RED);
             g.drawRect(startX + start.x * cellSize, startY + start.y * cellSize, size * cellSize, size * cellSize);
         }
     }
