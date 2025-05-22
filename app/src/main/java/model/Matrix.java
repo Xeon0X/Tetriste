@@ -92,8 +92,10 @@ public class Matrix extends Observable implements Runnable {
             if (wasPaused) {
                 pauseLock.notifyAll();
                 setChanged();
+                notifyObservers("RESUME");
             } else {
                 setChanged();
+                notifyObservers("PAUSE");
             }
         }
     }

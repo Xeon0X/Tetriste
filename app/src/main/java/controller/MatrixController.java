@@ -25,6 +25,10 @@ public class MatrixController {
     public void update(Observable o, Object arg) {
         if (arg != null && arg.equals("GAME_OVER")) {
             matrixView.handleGameOver(matrix.getScore());
+        } else if (arg != null && arg.equals("PAUSE")) {
+            matrixView.setPaused(true);
+        } else if (arg != null && arg.equals("RESUME")) {
+            matrixView.setPaused(false);
         }
     }
 

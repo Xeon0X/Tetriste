@@ -24,8 +24,8 @@ public class MatrixView extends JPanel implements Observer {
             Color.MAGENTA,
             Color.RED,
     };
-
     private final JTextField textField = new JTextField("");
+    private boolean isPaused = false;
     private int cellSize;
     private JFrame frame;
     private Consumer<Integer> gameOverHandler;
@@ -78,6 +78,11 @@ public class MatrixView extends JPanel implements Observer {
         if (frame != null) {
             frame.dispose();
         }
+    }
+
+    public void setPaused(boolean paused) {
+        this.isPaused = paused;
+        repaint();
     }
 
     private void calculateCellSize() {
@@ -187,6 +192,22 @@ public class MatrixView extends JPanel implements Observer {
             int size = matrix.getActiveTetromino().getShape().getSize();
             g.setColor(Color.RED);
             g.drawRect(startX + start.x * cellSize, startY + start.y * cellSize, size * cellSize, size * cellSize);
+        }
+
+        if (isPaused) {
+            g.setColor(new Color(0, 0, 0, 150));
+            g.fillRect(0, 0, getWidth(), getHeight());
+
+            g.setColor(Color.WHITE);
+            Font pauseFont = new Font("Arial", Font.BOLD, Math.max(30, getWidth() / 10));
+            g.setFont(pauseFont);
+
+            String pauseText = "PAUSE";
+            FontMetrics metrics = g.getFontMetrics(pauseFont);
+            int x = (getWidth() - metrics.stringWidth(pauseText)) / 2;
+            int y = (getHeight() + metrics.getHeight()) / 2;
+
+            g.drawString(pauseText, x, y);
         }
     }
 
