@@ -44,6 +44,10 @@ public class Matrix extends Observable implements Runnable {
 
     @Override
     public void run() {
+        if (gameover) {
+            return;
+        }
+        
         try {
             if (!testAndApplyMoveTetromino(Action.SOFT_DROP)) {
                 validateTetromino();

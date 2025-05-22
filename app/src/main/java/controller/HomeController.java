@@ -3,20 +3,31 @@ package controller;
 import model.Matrix;
 import model.PreconfigMatrix;
 import view.HomeView;
-import view.MatrixView;
 
 public class HomeController {
 
     private HomeView view;
 
     public HomeController() {
+        this.view = new HomeView();
+        this.view.setDifficultyActionListener(e -> {
+            int difficulty;
+            String buttonText = e.getActionCommand();
+
+            if ("Easy".equals(buttonText)) {
+                difficulty = 0;
+            } else if ("Medium".equals(buttonText)) {
+                difficulty = 1;
+            } else {
+                difficulty = 2;
+            }
+
+            startGame(difficulty);
+        });
+        this.view.display();
     }
 
-    public void setView(HomeView view) {
-        this.view = view;
-    }
-
-    public void startGame(int difficulty) {
+    private void startGame(int difficulty) {
         if (view != null) {
             view.close();
         }
@@ -34,7 +45,7 @@ public class HomeController {
                 .sizeY(sizeY)
                 .matrix(PreconfigMatrix.emptyLineLeft(sizeX, sizeY))
                 .build();
-        MatrixController matrixController = new MatrixController(currentMatrix);
-        MatrixView matrixView = new MatrixView(currentMatrix, matrixController);
+
+        new MatrixController(currentMatrix);
     }
 }

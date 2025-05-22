@@ -1,26 +1,22 @@
 package controller;
 
 import view.GameOverView;
-import view.HomeView;
 
 public class GameOverController {
     private GameOverView gameOverView;
 
-    public GameOverController() {
+    public GameOverController(int score) {
+        this.gameOverView = new GameOverView(score);
+        this.gameOverView.setHomeButtonListener(e -> returnHome());
+        this.gameOverView.display();
     }
 
-    public void setView(GameOverView gameOverView) {
-        this.gameOverView = gameOverView;
-    }
-
-    public void returnHome() {
+    private void returnHome() {
         if (gameOverView != null) {
             gameOverView.close();
         }
 
-        HomeController homeController = new HomeController();
-        HomeView homeView = new HomeView(homeController);
-        homeController.setView(homeView);
-        homeView.display();
+        // HomeController creates its own view in its constructor
+        new HomeController();
     }
 }

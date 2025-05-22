@@ -1,7 +1,5 @@
 package view;
 
-import controller.GameOverController;
-import controller.MatrixController;
 import model.Matrix;
 
 import javax.swing.*;
@@ -10,6 +8,7 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.function.Consumer;
 
 public class MatrixView extends JPanel implements Observer {
     private static final float BASE_SCORE_FONT_SIZE = 16f;
@@ -27,14 +26,12 @@ public class MatrixView extends JPanel implements Observer {
     };
 
     private final JTextField textField = new JTextField("");
-    private final MatrixController controller;
     private int cellSize;
+    private JFrame frame;
+    private Consumer<Integer> gameOverHandler;
 
-    public MatrixView(Matrix matrix, MatrixController controller) {
+    public MatrixView(Matrix matrix) {
         this.matrix = matrix;
-        this.controller = controller;
-        controller.setView(this);
-
         setBackground(Color.WHITE);
         calculateCellSize();
         matrix.addObserver(this);
@@ -42,23 +39,18 @@ public class MatrixView extends JPanel implements Observer {
         setupWindow();
     }
 
+    public void setGameOverHandler(Consumer<Integer> handler) {
+        this.gameOverHandler = handler;
+    }
+
     public void handleGameOver(int score) {
-        JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(this);
-        if (frame != null) {
-            frame.getContentPane().removeAll();
-
-            GameOverController gameOverController = new GameOverController();
-
-            GameOverView gameOverView = new GameOverView(gameOverController, score);
-
-            frame.getContentPane().add(gameOverView);
-            frame.revalidate();
-            frame.repaint();
+        if (gameOverHandler != null) {
+            gameOverHandler.accept(score);
         }
     }
 
     private void setupWindow() {
-        JFrame frame = new JFrame("Matrix Game");
+        frame = new JFrame("Matrix Game");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(400, 400);
         frame.setLocationRelativeTo(null);
@@ -80,6 +72,12 @@ public class MatrixView extends JPanel implements Observer {
         );
 
         frame.setVisible(true);
+    }
+
+    public void close() {
+        if (frame != null) {
+            frame.dispose();
+        }
     }
 
     private void calculateCellSize() {
@@ -139,7 +137,6 @@ public class MatrixView extends JPanel implements Observer {
 
         g.drawString("Lines:", labelX, startY2 + 2 * spacingY);
         g.drawString(String.valueOf(matrix.getLinesCleared()), valueX + horzontalSpacing, startY2 + 2 * spacingY);
-
 
         g.setColor(Color.LIGHT_GRAY);
         for (int x = 0; x <= matrix.SIZE_X; x++) {

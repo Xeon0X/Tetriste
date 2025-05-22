@@ -17,6 +17,9 @@ public class MatrixController {
         this.matrix = matrix;
         matrix.addObserver(this::update);
         setupKeyListener();
+
+        this.matrixView = new MatrixView(matrix);
+        this.matrixView.setGameOverHandler(this::handleGameOver);
     }
 
     public void update(Observable o, Object arg) {
@@ -25,8 +28,12 @@ public class MatrixController {
         }
     }
 
-    public void setView(MatrixView matrixView) {
-        this.matrixView = matrixView;
+    private void handleGameOver(int score) {
+        if (matrixView != null) {
+            matrixView.close();
+        }
+
+        GameOverController gameOverController = new GameOverController(score);
     }
 
     private void setupKeyListener() {
