@@ -20,10 +20,10 @@ public class Matrix extends Observable implements Runnable {
     private Tetromino activeTetromino;
     private Tetromino nextTetromino;
     private Tetromino previewTetromino;
-    private int score = 0;
-    private int level = 0;
-    private int linesCleared = 0;
-    private boolean gameover = false;
+    private int score;
+    private int level;
+    private int linesCleared;
+    private boolean gameover;
     private AtomicBoolean paused = new AtomicBoolean(false);
 
     @Builder
@@ -36,6 +36,9 @@ public class Matrix extends Observable implements Runnable {
             System.arraycopy(matrix[x], 0, this.matrix[x], 0, SIZE_Y);
         }
         this.score = 0;
+        this.level = 0;
+        this.linesCleared = 0;
+        this.gameover = false;
 
         this.scheduler = new Scheduler(this);
         this.scheduler.start();

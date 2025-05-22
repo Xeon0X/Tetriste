@@ -57,7 +57,6 @@ public class MatrixView extends JPanel implements Observer {
 
         JPanel panel = new JPanel(new BorderLayout());
         textField.setFocusable(false);
-        panel.add(textField, BorderLayout.NORTH);
         panel.add(this, BorderLayout.CENTER);
 
         frame.setContentPane(panel);
