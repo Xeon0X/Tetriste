@@ -6,6 +6,7 @@ import lombok.Setter;
 
 import java.awt.*;
 import java.util.Observable;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Getter
 @Setter
@@ -13,6 +14,7 @@ public class Matrix extends Observable implements Runnable {
 
     public final int SIZE_X;
     public final int SIZE_Y;
+    private final Object pauseLock = new Object();
     private boolean[][] matrix;
     private Scheduler scheduler;
     private Tetromino activeTetromino;
@@ -22,6 +24,7 @@ public class Matrix extends Observable implements Runnable {
     private int level;
     private int linesCleared = 0;
     private boolean gameover = false;
+    private AtomicBoolean paused = new AtomicBoolean(false);
 
     @Builder
     public Matrix(int sizeX, int sizeY, boolean[][] matrix) {
@@ -54,6 +57,17 @@ public class Matrix extends Observable implements Runnable {
             return;
         }
 
+        synchronized (pauseLock) {
+            if (paused.get()) {
+                try {
+                    pauseLock.wait();
+                    return;
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        }
+
         try {
             if (!testAndApplyMoveTetromino(Action.SOFT_DROP)) {
                 validateTetromino();
@@ -70,6 +84,18 @@ public class Matrix extends Observable implements Runnable {
         previewTetromino.setPosition(activeTetromino.getPosition());
         previewTetromino.setShape(activeTetromino.getShape());
         previewTetromino.setPosition(computeLowestCoordinate().position);
+    }
+
+    public void togglePause() {
+        synchronized (pauseLock) {
+            boolean wasPaused = paused.getAndSet(!paused.get());
+            if (wasPaused) {
+                pauseLock.notifyAll();
+                setChanged();
+            } else {
+                setChanged();
+            }
+        }
     }
 
     public void moveTetromino(Action action) {
@@ -262,6 +288,10 @@ public class Matrix extends Observable implements Runnable {
             }
         }
         return true;
+    }
+
+    public boolean isPaused() {
+        return this.paused.get();
     }
 
     public record DropResult(Point position, int dropDepth) {
