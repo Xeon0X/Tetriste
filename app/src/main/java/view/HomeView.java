@@ -1,6 +1,6 @@
 package view;
 
-import lombok.Getter;
+import controller.HomeController;
 
 import javax.swing.*;
 import java.awt.*;
@@ -8,23 +8,32 @@ import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 
-public class HomeView extends JPanel {
+public class HomeView extends JFrame {
     private static final float BASE_TITLE_SIZE = 36f;
     private static final float BASE_BUTTON_SIZE = 20f;
     private static final int WIDTH = 500;
     private static final int HEIGHT = 400;
 
-    private final JLabel titleLabel;
-    @Getter
-    private final JButton easyButton;
-    @Getter
-    private final JButton mediumButton;
-    @Getter
-    private final JButton hardButton;
+    private final HomeController controller;
+    private JButton easyButton;
+    private JButton mediumButton;
+    private JButton hardButton;
+    private JLabel titleLabel;
 
-    public HomeView() {
-        setLayout(new BorderLayout());
+    public HomeView(HomeController controller) {
+        this.controller = controller;
 
+        setTitle("Tetriste");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(WIDTH, HEIGHT);
+        setLocationRelativeTo(null);
+
+        setupUI();
+
+        setupListeners();
+    }
+
+    private void setupUI() {
         JPanel titlePanel = new JPanel();
         titlePanel.setBorder(BorderFactory.createEmptyBorder(30, 0, 0, 0));
         titleLabel = new JLabel("Tetriste");
@@ -32,24 +41,18 @@ public class HomeView extends JPanel {
         titlePanel.add(titleLabel);
         add(titlePanel, BorderLayout.NORTH);
 
+        JPanel panel = new JPanel(new GridLayout(3, 1, 10, 10));
+        panel.setBorder(BorderFactory.createEmptyBorder(50, 50, 50, 50));
 
-        JPanel difficultyPanel = new JPanel(new GridLayout(3, 1, 10, 10));
-        difficultyPanel.setBorder(BorderFactory.createEmptyBorder(50, 100, 50, 100));
+        easyButton = new JButton("Easy");
+        mediumButton = new JButton("Medium");
+        hardButton = new JButton("Hard");
 
-        easyButton = new JButton("Facile");
-        easyButton.setFont(new Font("Arial", Font.PLAIN, (int) BASE_BUTTON_SIZE));
+        panel.add(easyButton);
+        panel.add(mediumButton);
+        panel.add(hardButton);
 
-        mediumButton = new JButton("Moyen");
-        mediumButton.setFont(new Font("Arial", Font.PLAIN, (int) BASE_BUTTON_SIZE));
-
-        hardButton = new JButton("Difficile");
-        hardButton.setFont(new Font("Arial", Font.PLAIN, (int) BASE_BUTTON_SIZE));
-
-        difficultyPanel.add(easyButton);
-        difficultyPanel.add(mediumButton);
-        difficultyPanel.add(hardButton);
-
-        add(difficultyPanel, BorderLayout.CENTER);
+        add(panel, BorderLayout.CENTER);
 
         addComponentListener(new ComponentAdapter() {
             @Override
@@ -57,6 +60,25 @@ public class HomeView extends JPanel {
                 updateFonts();
             }
         });
+    }
+
+    private void setupListeners() {
+        ActionListener difficultyListener = e -> {
+            JButton source = (JButton) e.getSource();
+
+            int difficulty;
+            if (source == easyButton) {
+                difficulty = 0;
+            } else if (source == mediumButton) {
+                difficulty = 1;
+            } else {
+                difficulty = 2;
+            }
+
+            controller.startGame(difficulty);
+        };
+
+        setDifficultyActionListener(difficultyListener);
     }
 
     private void updateFonts() {
@@ -83,5 +105,13 @@ public class HomeView extends JPanel {
         easyButton.addActionListener(listener);
         mediumButton.addActionListener(listener);
         hardButton.addActionListener(listener);
+    }
+
+    public void display() {
+        setVisible(true);
+    }
+
+    public void close() {
+        dispose();
     }
 }

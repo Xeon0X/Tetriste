@@ -2,17 +2,31 @@ package controller;
 
 import model.Action;
 import model.Matrix;
+import view.MatrixView;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
+import java.util.Observable;
 
 public class MatrixController {
 
     private final Matrix matrix;
+    private MatrixView matrixView;
 
     public MatrixController(Matrix matrix) {
         this.matrix = matrix;
+        matrix.addObserver(this::update);
         setupKeyListener();
+    }
+
+    public void update(Observable o, Object arg) {
+        if (arg != null && arg.equals("GAME_OVER")) {
+            matrixView.handleGameOver(matrix.getScore());
+        }
+    }
+
+    public void setView(MatrixView matrixView) {
+        this.matrixView = matrixView;
     }
 
     private void setupKeyListener() {

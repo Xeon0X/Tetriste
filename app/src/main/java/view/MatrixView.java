@@ -1,41 +1,60 @@
 package view;
 
+import controller.GameOverController;
 import controller.MatrixController;
+import model.Matrix;
+
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.util.Observable;
 import java.util.Observer;
-import javax.swing.*;
-import model.Matrix;
 
 public class MatrixView extends JPanel implements Observer {
-
     private static final float BASE_SCORE_FONT_SIZE = 16f;
     private static final int WIDTH = 400;
     private static final int HEIGHT = 600;
     private final Matrix matrix;
     private final Color[] colors = {
-        Color.CYAN,
-        Color.BLUE,
-        Color.ORANGE,
-        Color.YELLOW,
-        Color.GREEN,
-        Color.MAGENTA,
-        Color.RED,
+            Color.CYAN,
+            Color.BLUE,
+            Color.ORANGE,
+            Color.YELLOW,
+            Color.GREEN,
+            Color.MAGENTA,
+            Color.RED,
     };
 
     private final JTextField textField = new JTextField("");
+    private final MatrixController controller;
     private int cellSize;
 
-    public MatrixView(Matrix matrix) {
+    public MatrixView(Matrix matrix, MatrixController controller) {
         this.matrix = matrix;
+        this.controller = controller;
+        controller.setView(this);
 
         setBackground(Color.WHITE);
         calculateCellSize();
         matrix.addObserver(this);
 
         setupWindow();
+    }
+
+    public void handleGameOver(int score) {
+        JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(this);
+        if (frame != null) {
+            frame.getContentPane().removeAll();
+
+            GameOverController gameOverController = new GameOverController();
+
+            GameOverView gameOverView = new GameOverView(gameOverController, score);
+
+            frame.getContentPane().add(gameOverView);
+            frame.revalidate();
+            frame.repaint();
+        }
     }
 
     private void setupWindow() {

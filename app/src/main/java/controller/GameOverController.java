@@ -1,42 +1,26 @@
 package controller;
 
 import view.GameOverView;
+import view.HomeView;
 
-import javax.swing.*;
-import java.awt.event.ActionListener;
+public class GameOverController {
+    private GameOverView gameOverView;
 
-public class GameOverController extends JFrame {
-    private final GameOverView gameOverView;
-
-    public GameOverController(int score) {
-        setTitle("Game Over");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(500, 400);
-        setLocationRelativeTo(null);
-
-        gameOverView = new GameOverView(score);
-        setContentPane(gameOverView);
-
-        setupListeners();
+    public GameOverController() {
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            GameOverController gameOverController = new GameOverController(0);
-            gameOverController.setVisible(true);
-        });
+    public void setView(GameOverView gameOverView) {
+        this.gameOverView = gameOverView;
     }
 
-    private void setupListeners() {
-        ActionListener homeListener = e -> {
-            dispose();
+    public void returnHome() {
+        if (gameOverView != null) {
+            gameOverView.close();
+        }
 
-            SwingUtilities.invokeLater(() -> {
-                HomeController homeController = new HomeController();
-                homeController.setVisible(true);
-            });
-        };
-
-        gameOverView.getHomeButton().addActionListener(homeListener);
+        HomeController homeController = new HomeController();
+        HomeView homeView = new HomeView(homeController);
+        homeController.setView(homeView);
+        homeView.display();
     }
 }

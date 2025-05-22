@@ -7,60 +7,29 @@ import model.PreconfigMatrix;
 import view.HomeView;
 import view.MatrixView;
 
-public class HomeController extends JFrame {
+public class HomeController {
 
-    private final HomeView homeView;
+    private HomeView view;
 
     public HomeController() {
-        setTitle("Tetriste");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(500, 400);
-        setLocationRelativeTo(null);
-
-        homeView = new HomeView();
-        setContentPane(homeView);
-
-        setupListeners();
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            HomeController homeController = new HomeController();
-            homeController.setVisible(true);
-        });
+    public void setView(HomeView view) {
+        this.view = view;
     }
 
-    private void setupListeners() {
-        ActionListener difficultyListener = e -> {
-            JButton source = (JButton) e.getSource();
+    public void startGame(int difficulty) {
+        if (view != null) {
+            view.close();
+        }
 
-            int difficulty;
-            if (source == homeView.getEasyButton()) {
-                difficulty = 0;
-            } else if (source == homeView.getMediumButton()) {
-                difficulty = 1;
-            } else {
-                difficulty = 2;
-            }
-
-            startGame(difficulty);
+        int sizeX = 10;
+        int sizeY = switch (difficulty) {
+            case 0 -> 24;
+            case 1 -> 20;
+            case 2 -> 16;
+            default -> 24;
         };
-
-        homeView.setDifficultyActionListener(difficultyListener);
-    }
-
-    private void startGame(int difficulty) {
-        dispose();
-
-        SwingUtilities.invokeLater(() -> {
-            int sizeX = 10;
-            int sizeY =
-                switch (difficulty) {
-                    case 0 -> 24;
-                    case 1 -> 20;
-                    case 2 -> 16;
-                    default -> 24;
-                };
 
             Matrix currentMatrix = Matrix.builder()
                 .sizeX(sizeX)
